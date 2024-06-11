@@ -1,0 +1,1 @@
+int *simple(struct colaProcesos *cola, int nucleosLibres);
