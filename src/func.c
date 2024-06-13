@@ -1,31 +1,50 @@
-#include "include/structs.h"
-#include <cstddef>
+#include "../include/structs.h"
+// #include <cstddef>
+#include <stdlib.h>
+#include <stdio.h>
+#include "../include/func.h"
 
 // funciones de Gestión de Colas
 
 /*
 Una simple forma de gestionar las colas:
-- Prioridades tipo FIFO
 - Si el siguiente proceso en la lista para entrar en ejecución
 no entra, se prueba el siguiente, hasta encontrar uno o terminar
 la cola.
-- Si un proceso en ejecución pasa a necesitar más núcleos, sale
-de ejecución y se pone el primero en la cola.
-- Si un proceso deja núcleos libres, se busca el primer proceso en
-la cola que pueda entrar en ejecución.
-
-
+- Si un proceso en ejecución pasa a necesitar más o menos núcleos, sale
+de ejecución y se pone el ultimo en la cola.
 */
 
-int simple(struct colaProcesos *cola, struct sistema *sistema)
+void fifo(struct colaProcesos *colaProcesos, struct colaEventos *colaEventos, struct sistema *sistema)
 {
-    struct colaEventos *colaEventos = generarColaEventos(sistema);
-    while ()
-    {
 
-        actualizarColaEventos
+    struct proceso *p = colaProcesos->procesos;
+    struct momento *m;
+    while (p != NULL)
+    {
+        if (sistema->cantNucleosLibres == 0)
+            break;
+        if (p->nucleos < sistema->cantNucleosLibres)
+        {
+            // añadir a la lista de procesos en ejecucion
+            anadirAlFinal(sistema->procesosEjec, p);
+            // actualizar los nucleos libres
+            sistema->cantNucleosLibres -= p->nucleos;
+            // añadir el evento en el que termina el proceso
+            m = (struct momento *)malloc(sizeof(struct momento));
+
+            m->momento = p->tiempoEjec;
+            m->numeroEventos = 1;
+            m->evento = (struct evento *)malloc(sizeof(struct evento));
+            m->evento->proceso = p;
+            m->evento->tipo = 0;
+
+            actualizarColaEventos(colaEventos, m);
+        }
+
+        p = p->siguiente;
     }
-    return 0;
+    return;
 }
 
 /*  FUNCIONES AUXILIARES    */
@@ -52,27 +71,27 @@ int simple(struct colaProcesos *cola, struct sistema *sistema)
     }
 } */
 
-void actualizarColaEventos(struct colaEventos *colaEventos, struct eventos *e)
+void actualizarColaEventos(struct colaEventos *colaEventos, struct momento *e)
 {
     // bool seguir = TRUE;
-    struct eventos *aux = colaEventos->eventos;
-    struct eventos *auxAnterior = NULL;
-    struct eventos *auxAnteriorAnterior = NULL;
-    while (aux->momento < e->momento && aux != NULL)
+    struct momento *aux = colaEventos->eventos;
+    struct momento *auxAnterior = NULL;
+    struct momento *auxAnteriorAnterior = NULL;
+    while (aux->momento <= e->momento && aux != NULL)
     {
         e->momento -= aux->momento;
         auxAnteriorAnterior = auxAnterior;
         auxAnterior = aux;
-        aux = aux->siguiente;
+        aux = aux->siguienteMomento;
     }
-    e->siguiente = aux;
+    e->siguienteMomento = aux;
     auxAnterior = e;
 }
 
 /*
 añadir proceso al final de la cola de procesos
 */
-void añadirAlFinal(struct colaProcesos *cola, struct proceso *p)
+void anadirAlFinal(struct colaProcesos *cola, struct proceso *p)
 {
     if (cola->tamanio == 0)
     {
@@ -94,7 +113,7 @@ void añadirAlFinal(struct colaProcesos *cola, struct proceso *p)
 /*
 añadir proceso al principio de la cola de procesos
 */
-void añadirAlPrincipio(struct colaProcesos *cola, struct proceso *p)
+void anadirAlPrincipio(struct colaProcesos *cola, struct proceso *p)
 {
     if (cola->tamanio == 0)
     {
@@ -109,4 +128,35 @@ void añadirAlPrincipio(struct colaProcesos *cola, struct proceso *p)
         cola->tamanio++;
     }
     return;
+}
+
+int quitarProceso(struct colaProcesos *cola, struct proceso *p)
+{
+    if (cola->tamanio == 0)
+    {
+        return 1;
+    }
+    else if (cola->procesos == p)
+    {
+        cola->procesos = cola->procesos->siguiente;
+        cola->tamanio--;
+        return 0;
+    }
+    else
+    {
+        struct proceso *aux = cola->procesos->siguiente->siguiente;
+        struct proceso *auxAnterior = cola->procesos->siguiente;
+        while (aux != NULL)
+        {
+            if (aux == p)
+            {
+                // quitar proceso
+                auxAnterior->siguiente = aux->siguiente;
+                aux->siguiente = NULL;
+                cola->tamanio--;
+                return 0;
+            }
+        }
+    }
+    return 2;
 }

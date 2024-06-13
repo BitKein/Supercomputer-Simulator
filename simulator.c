@@ -9,18 +9,23 @@ int main()
     // init supercompu
     struct sistema *sistema = (struct sistema *)malloc(sizeof(struct sistema));
     sistema->tiempoTranscurrido = 0;
-    sistema->cantNucleos = 32;
-    sistema->tamCola = 0;
+    sistema->cantTotalNucleos = 32;
+    sistema->cantNucleosLibres = sistema->cantTotalNucleos;
     sistema->procesosEjec = (struct colaProcesos *)malloc(sizeof(struct colaProcesos));
+    sistema->procesosEjec->tamanio = 0;
+
+    // proceso vacio
+    struct proceso *p0 = (struct proceso *)malloc(sizeof(struct proceso));
+    // añadir proceso vacio
+    anadirAlFinal(sistema->procesosEjec, p0);
 
     // definir funcion gestion de colas
-    int *(*gcFunc)(struct colaProcesos *, struct sistema *);
-    gcFunc = &simple;
+    void (*gcFunc)(struct colaProcesos *, struct colaEventos *, struct sistema *);
+    gcFunc = &fifo;
 
-    int tamCola = 5;
     // generar la cola de procesos
     struct colaProcesos *colaProcesos = (struct colaProcesos *)malloc(sizeof(struct colaProcesos));
-    colaProcesos->tamanio = tamCola;
+    colaProcesos->tamanio = 0;
     struct proceso *p1 = (struct proceso *)malloc(sizeof(struct proceso));
     p1->pid = 0;
     p1->nucleos = 4;
@@ -36,12 +41,22 @@ int main()
     p1->siguiente = NULL;
 
     // añadir procesos a la cola
-    añadirAlFinal(colaProcesos, p1);
+    anadirAlFinal(colaProcesos, p1);
 
     // generar el array con los eventos
     struct colaEventos *colaEventos = (struct colaEventos *)malloc(sizeof(struct colaEventos));
+    colaEventos->tamanio = 1;
+    colaEventos->eventos = (struct momento *)malloc(sizeof(struct momento));
+    colaEventos->eventos->momento = 0;
+    colaEventos->eventos->tiempoDesdeEventoAnterior = 0;
+    colaEventos->eventos->numeroEventos = 1;
+    colaEventos->eventos->evento = (struct evento *)malloc(sizeof(struct evento));
+    colaEventos->eventos->evento->tipo = 0;
+    colaEventos->eventos->evento->proceso = (struct proceso *)malloc(sizeof(struct proceso));
+
     struct momento *momento = colaEventos->eventos;
-    struct evento *evento = momento->siguienteEvento;
+    struct evento *dfdg = colaEventos->eventos->evento;
+    struct evento *evento = momento->evento;
     // bucle principal, por cada momento de tiempo...
     while (momento != NULL)
     {
@@ -59,27 +74,30 @@ int main()
         // por cada evento...
         while (evento != NULL)
         {
-            // sacar proceso de la máquina
-            struct proceso *p = sistema->procesosEjec->procesos;
+            struct proceso *p = evento->proceso;
+            if (evento->tipo != 0)
+            {
+                if (evento->tipo == 1)
+                {
+                    // cambiar los nucleos que necesita
+                    p->nucleos = p->nucleos * evento->factor;
+                }
+                if (evento->tipo == 2)
+                {
+                    // cambiar los nucleos que necesita
+                    p->nucleos = p->nucleos / evento->factor;
+                }
+                anadirAlFinal(colaProcesos, p);
+            }
 
-            if (evento->tipo == 1)
-            {
-                // cambiar los nucleos que necesita
-                p->nucleos = p->nucleos * evento->factor;
-            }
-            else if (evento->tipo == 2)
-            {
-                // cambiar los nucleos que necesita
-                p->nucleos = p->nucleos / evento->factor;
-            }
-            // meter al principio
-            añadirAlFinal(colaProcesos, p);
+            quitarProceso(sistema->procesosEjec, p);
+
             evento = evento->siguiente;
         }
         // llamar al GC
-        gcFunc(colaProcesos, sistema);
+        gcFunc(colaProcesos, colaEventos, sistema);
 
-        momento = momento->siguiente;
+        momento = momento->siguienteMomento;
     }
 
     return 0;

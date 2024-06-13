@@ -34,7 +34,7 @@ struct colaProcesos
 
 struct evento
 {
-    int pid;
+    struct proceso *proceso;
     // 0: no hay cambio, un proceso ha terminado
     // 1: aumenta el número de núcleos
     // 2: disminuye el número de núcleos
@@ -50,7 +50,8 @@ struct momento
     int tiempoDesdeEventoAnterior;
     int numeroEventos;
     // struct evento *eventos;
-    struct evento *siguienteEvento;
+    struct evento *evento;
+    struct momento *siguienteMomento;
 };
 
 struct colaEventos
@@ -63,7 +64,7 @@ struct sistema
 {
     // segundos transcurridos desde el principio
     int tiempoTranscurrido;
-    int cantNucleos;
-    int tamCola;
+    int cantTotalNucleos;
+    int cantNucleosLibres;
     struct colaProcesos *procesosEjec;
 };
