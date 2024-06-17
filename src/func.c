@@ -41,7 +41,7 @@ void fifo(struct colaProcesos *colaProcesos, struct colaEventos *colaEventos, st
 
             actualizarColaEventos(colaEventos, m);
         }
-
+        quitarProceso(colaProcesos, p);
         p = p->siguiente;
     }
     return;
@@ -77,8 +77,12 @@ void actualizarColaEventos(struct colaEventos *colaEventos, struct momento *e)
     struct momento *aux = colaEventos->eventos;
     struct momento *auxAnterior = NULL;
     struct momento *auxAnteriorAnterior = NULL;
-    while (aux->momento <= e->momento && aux != NULL)
+    while (aux != NULL)
     {
+        if (aux->momento > e->momento)
+        {
+            break;
+        }
         e->momento -= aux->momento;
         auxAnteriorAnterior = auxAnterior;
         auxAnterior = aux;
@@ -104,9 +108,11 @@ void anadirAlFinal(struct colaProcesos *cola, struct proceso *p)
         {
             aux = aux->siguiente;
         }
-        cola->tamanio++;
+
         aux->siguiente = p;
+        // aux->siguiente->siguiente = NULL;
     }
+    cola->tamanio++;
     return;
 }
 
@@ -132,6 +138,8 @@ void anadirAlPrincipio(struct colaProcesos *cola, struct proceso *p)
 
 int quitarProceso(struct colaProcesos *cola, struct proceso *p)
 {
+    void *a1 = (void *)cola->procesos;
+    void *a2 = (void *)p;
     if (cola->tamanio == 0)
     {
         return 1;
@@ -154,6 +162,37 @@ int quitarProceso(struct colaProcesos *cola, struct proceso *p)
                 auxAnterior->siguiente = aux->siguiente;
                 aux->siguiente = NULL;
                 cola->tamanio--;
+                return 0;
+            }
+        }
+    }
+    return 2;
+}
+
+void quitarEvento(struct colaEventos *colaEventos, struct evento *evento)
+{
+    if (colaEventos->tamanio == 0)
+    {
+        return 1;
+    }
+    else if (colaEventos->eventos->evento == evento)
+    {
+        colaEventos->eventos = colaEventos->eventos->siguienteMomento;
+        colaEventos->tamanio--;
+        return 0;
+    }
+    else
+    {
+        struct momento *aux = colaEventos->eventos->siguienteMomento;
+        struct momento *auxAnterior = colaEventos->eventos;
+        while (aux != NULL)
+        {
+            if (aux == evento)
+            {
+                // quitar evento
+                auxAnterior->siguienteMomento = aux->siguienteMomento;
+                aux->siguienteMomento = NULL;
+                colaEventos->tamanio--;
                 return 0;
             }
         }

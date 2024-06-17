@@ -13,9 +13,14 @@ int main()
     sistema->cantNucleosLibres = sistema->cantTotalNucleos;
     sistema->procesosEjec = (struct colaProcesos *)malloc(sizeof(struct colaProcesos));
     sistema->procesosEjec->tamanio = 0;
+    sistema->procesosEjec->procesos = NULL;
 
     // proceso vacio
     struct proceso *p0 = (struct proceso *)malloc(sizeof(struct proceso));
+    p0->cambios = NULL;
+    p0->nucleos = 2;
+    p0->pid = -1;
+    p0->siguiente = NULL;
     // añadir proceso vacio
     anadirAlFinal(sistema->procesosEjec, p0);
 
@@ -26,6 +31,7 @@ int main()
     // generar la cola de procesos
     struct colaProcesos *colaProcesos = (struct colaProcesos *)malloc(sizeof(struct colaProcesos));
     colaProcesos->tamanio = 0;
+    // proceso de prueba 1
     struct proceso *p1 = (struct proceso *)malloc(sizeof(struct proceso));
     p1->pid = 0;
     p1->nucleos = 4;
@@ -40,24 +46,58 @@ int main()
     p1->cambios->cambios->factor = 2;
     p1->siguiente = NULL;
 
+    // proceso de prueba 2
+    struct proceso *p2 = (struct proceso *)malloc(sizeof(struct proceso));
+    p2->pid = 1;
+    p2->nucleos = 4;
+    p2->tiempoEjec = 100;
+    p2->tiempoDesdeInicioEjec = 0;
+    p2->tiempoParaTerminar = p2->tiempoEjec;
+    p2->cambios = (struct cambiosNucleos *)malloc(sizeof(struct cambiosNucleos));
+    p2->cambios->tamanio = 1;
+    p2->cambios->cambios = (struct objetoCambio *)malloc(sizeof(struct objetoCambio));
+    p2->cambios->cambios->momentoCambio = 50;
+    p2->cambios->cambios->incrementar = 1;
+    p2->cambios->cambios->factor = 2;
+    p2->siguiente = NULL;
+
+    // proceso de prueba 3
+    struct proceso *p3 = (struct proceso *)malloc(sizeof(struct proceso));
+    p3->pid = 2;
+    p3->nucleos = 4;
+    p3->tiempoEjec = 100;
+    p3->tiempoDesdeInicioEjec = 0;
+    p3->tiempoParaTerminar = p3->tiempoEjec;
+    p3->cambios = (struct cambiosNucleos *)malloc(sizeof(struct cambiosNucleos));
+    p3->cambios->tamanio = 1;
+    p3->cambios->cambios = (struct objetoCambio *)malloc(sizeof(struct objetoCambio));
+    p3->cambios->cambios->momentoCambio = 50;
+    p3->cambios->cambios->incrementar = 1;
+    p3->cambios->cambios->factor = 2;
+    p3->siguiente = NULL;
+
     // añadir procesos a la cola
     anadirAlFinal(colaProcesos, p1);
+    anadirAlFinal(colaProcesos, p2);
+    anadirAlFinal(colaProcesos, p3);
 
     // generar el array con los eventos
     struct colaEventos *colaEventos = (struct colaEventos *)malloc(sizeof(struct colaEventos));
     colaEventos->tamanio = 1;
     colaEventos->eventos = (struct momento *)malloc(sizeof(struct momento));
     colaEventos->eventos->momento = 0;
+    colaEventos->eventos->siguienteMomento = NULL;
     colaEventos->eventos->tiempoDesdeEventoAnterior = 0;
     colaEventos->eventos->numeroEventos = 1;
     colaEventos->eventos->evento = (struct evento *)malloc(sizeof(struct evento));
     colaEventos->eventos->evento->tipo = 0;
-    colaEventos->eventos->evento->proceso = (struct proceso *)malloc(sizeof(struct proceso));
+    colaEventos->eventos->evento->proceso = p0;
+    colaEventos->eventos->evento->siguiente = NULL;
 
     struct momento *momento = colaEventos->eventos;
     struct evento *dfdg = colaEventos->eventos->evento;
     struct evento *evento = momento->evento;
-    // bucle principal, por cada momento de tiempo...
+    //  bucle principal, por cada momento de tiempo...
     while (momento != NULL)
     {
         // actualizar tiempo que ha transcurrido
@@ -92,6 +132,26 @@ int main()
 
             quitarProceso(sistema->procesosEjec, p);
 
+            /* switch (evento->tipo)
+            {
+            case 0:
+                quitarProceso(sistema->procesosEjec, p);
+                break;
+            case 1:
+                p->nucleos = p->nucleos * evento->factor;
+                anadirAlFinal(colaProcesos, p);
+                quitarProceso(sistema->procesosEjec, p);
+                break;
+            case 2:
+                p->nucleos = p->nucleos / evento->factor;
+                anadirAlFinal(colaProcesos, p);
+                quitarProceso(sistema->procesosEjec, p);
+                break;
+            default:
+                break;
+            } */
+
+            //  quitarEvento(colaEventos, evento);
             evento = evento->siguiente;
         }
         // llamar al GC
