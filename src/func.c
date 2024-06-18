@@ -126,6 +126,7 @@ void actualizarColaEventos(struct colaEventos *colaEventos, struct momento *e)
         {
             if (aux->momento > e->momento)
             {
+                aux->momento -= e->momento;
                 break;
             }
             e->momento -= aux->momento;
