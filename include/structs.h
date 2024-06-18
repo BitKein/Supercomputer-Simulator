@@ -2,8 +2,8 @@
 struct objetoCambio
 {
     int momentoCambio;
-    // 0: Multiplicar el número de nucleos actual por el factor
-    // 1: Dividir el número de nucleos actual por el factor
+    // 1: Multiplicar el número de nucleos actual por el factor
+    // 0: Dividir el número de nucleos actual por el factor
     int incrementar;
     int factor;
     struct objetoCambio *siguiente;

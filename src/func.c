@@ -42,8 +42,35 @@ void fifo(struct colaProcesos *colaProcesos, struct colaEventos *colaEventos, st
             m->evento = (struct evento *)malloc(sizeof(struct evento));
             m->evento->proceso = p;
             m->evento->tipo = 0;
+            m->siguienteMomento = NULL;
+            m->evento->siguiente = NULL;
 
             actualizarColaEventos(colaEventos, m);
+            struct objetoCambio *cambio = p->cambios->cambios;
+            while (cambio != NULL)
+            {
+                m = (struct momento *)malloc(sizeof(struct momento));
+                m->momento = cambio->momentoCambio;
+                m->evento = (struct evento *)malloc(sizeof(struct evento));
+                m->evento->proceso = p;
+                m->siguienteMomento = NULL;
+                m->evento->siguiente = NULL;
+                switch (cambio->incrementar)
+                {
+                case 1:
+                    m->evento->tipo = 1;
+                    m->evento->factor = cambio->factor;
+                    break;
+                case 0:
+                    m->evento->tipo = 2;
+                    m->evento->factor = cambio->factor;
+                    break;
+                default:
+                    break;
+                }
+                actualizarColaEventos(colaEventos, m);
+                cambio = cambio->siguiente;
+            }
         }
         // quitarProceso(colaProcesos, p);
         p = siguiente;
@@ -85,23 +112,31 @@ void fifo(struct colaProcesos *colaProcesos, struct colaEventos *colaEventos, st
 
 void actualizarColaEventos(struct colaEventos *colaEventos, struct momento *e)
 {
-    // bool seguir = TRUE;
-    struct momento *aux = colaEventos->eventos;
-    struct momento *auxAnterior = NULL;
-    struct momento *auxAnteriorAnterior = NULL;
-    while (aux != NULL)
+    if (colaEventos->tamanio == 0)
     {
-        if (aux->momento > e->momento)
-        {
-            break;
-        }
-        e->momento -= aux->momento;
-        auxAnteriorAnterior = auxAnterior;
-        auxAnterior = aux;
-        aux = aux->siguienteMomento;
+        colaEventos->eventos = e;
     }
-    e->siguienteMomento = aux;
-    auxAnterior = e;
+    else
+    {
+
+        struct momento *aux = colaEventos->eventos;
+        struct momento *auxAnterior = NULL;
+        // struct momento *auxAnteriorAnterior = NULL;
+        while (aux != NULL)
+        {
+            if (aux->momento > e->momento)
+            {
+                break;
+            }
+            e->momento -= aux->momento;
+            // auxAnteriorAnterior = auxAnterior;
+            auxAnterior = aux;
+            aux = aux->siguienteMomento;
+        }
+        e->siguienteMomento = aux;
+        auxAnterior->siguienteMomento = e;
+    }
+    colaEventos->tamanio++;
 }
 
 /*
