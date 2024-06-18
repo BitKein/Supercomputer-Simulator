@@ -19,9 +19,13 @@ void fifo(struct colaProcesos *colaProcesos, struct colaEventos *colaEventos, st
 {
 
     struct proceso *p = colaProcesos->procesos;
+    struct proceso *siguiente = NULL;
+    if (colaProcesos->tamanio > 1)
+        siguiente = colaProcesos->procesos->siguiente;
     struct momento *m;
     while (p != NULL)
     {
+        quitarProceso(colaProcesos, p);
         if (sistema->cantNucleosLibres == 0)
             break;
         if (p->nucleos < sistema->cantNucleosLibres)
@@ -41,8 +45,16 @@ void fifo(struct colaProcesos *colaProcesos, struct colaEventos *colaEventos, st
 
             actualizarColaEventos(colaEventos, m);
         }
-        quitarProceso(colaProcesos, p);
-        p = p->siguiente;
+        // quitarProceso(colaProcesos, p);
+        p = siguiente;
+        if (colaProcesos->tamanio > 1)
+        {
+            siguiente = siguiente->siguiente;
+        }
+        else
+        {
+            siguiente = NULL;
+        }
     }
     return;
 }
@@ -138,16 +150,21 @@ void anadirAlPrincipio(struct colaProcesos *cola, struct proceso *p)
 
 int quitarProceso(struct colaProcesos *cola, struct proceso *p)
 {
-    void *a1 = (void *)cola->procesos;
-    void *a2 = (void *)p;
     if (cola->tamanio == 0)
     {
         return 1;
+    }
+    else if (cola->tamanio == 1)
+    {
+        cola->procesos = NULL;
+        cola->tamanio = 0;
+        return 0;
     }
     else if (cola->procesos == p)
     {
         cola->procesos = cola->procesos->siguiente;
         cola->tamanio--;
+        p->siguiente = NULL;
         return 0;
     }
     else
@@ -169,7 +186,7 @@ int quitarProceso(struct colaProcesos *cola, struct proceso *p)
     return 2;
 }
 
-void quitarEvento(struct colaEventos *colaEventos, struct evento *evento)
+int quitarEvento(struct colaEventos *colaEventos, struct evento *evento)
 {
     if (colaEventos->tamanio == 0)
     {
@@ -187,7 +204,7 @@ void quitarEvento(struct colaEventos *colaEventos, struct evento *evento)
         struct momento *auxAnterior = colaEventos->eventos;
         while (aux != NULL)
         {
-            if (aux == evento)
+            if (aux->evento == evento)
             {
                 // quitar evento
                 auxAnterior->siguienteMomento = aux->siguienteMomento;
