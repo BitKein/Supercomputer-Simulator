@@ -18,69 +18,75 @@ de ejecución y se pone el ultimo en la cola.
 void fifo(struct colaProcesos *colaProcesos, struct colaEventos *colaEventos, struct sistema *sistema)
 {
 
-    struct proceso *p = colaProcesos->procesos;
-    struct proceso *siguiente = NULL;
-    if (colaProcesos->tamanio > 1)
-        siguiente = colaProcesos->procesos->siguiente;
-    struct momento *m;
-    while (p != NULL)
+    if (colaProcesos->tamanio > 0)
     {
-        quitarProceso(colaProcesos, p);
-        if (sistema->cantNucleosLibres == 0)
-            break;
-        if (p->nucleos <= sistema->cantNucleosLibres)
+        struct proceso *p = colaProcesos->procesos;
+        struct proceso *siguiente = NULL;
+        if (colaProcesos->tamanio > 1)
+            siguiente = colaProcesos->procesos->siguiente;
+        struct momento *m;
+        while (p != NULL)
         {
-            // añadir a la lista de procesos en ejecucion
-            anadirAlFinal(sistema->procesosEjec, p);
-            // actualizar los nucleos libres
-            sistema->cantNucleosLibres -= p->nucleos;
-            // añadir el evento en el que termina el proceso
-            m = (struct momento *)malloc(sizeof(struct momento));
-
-            m->momento = p->tiempoEjec;
-            m->numeroEventos = 1;
-            m->evento = (struct evento *)malloc(sizeof(struct evento));
-            m->evento->proceso = p;
-            m->evento->tipo = 0;
-            m->siguienteMomento = NULL;
-            m->evento->siguiente = NULL;
-
-            actualizarColaEventos(colaEventos, m);
-            struct objetoCambio *cambio = p->cambios->cambios;
-            while (cambio != NULL)
+            quitarProceso(colaProcesos, p);
+            if (sistema->cantNucleosLibres == 0)
+                break;
+            if (p->nucleos <= sistema->cantNucleosLibres)
             {
+                // añadir a la lista de procesos en ejecucion
+                anadirAlFinal(sistema->procesosEjec, p);
+                // actualizar los nucleos libres
+                sistema->cantNucleosLibres -= p->nucleos;
+                // añadir el evento en el que termina el proceso
                 m = (struct momento *)malloc(sizeof(struct momento));
-                m->momento = cambio->momentoCambio;
+
+                m->momento = p->tiempoEjec;
+                m->numeroEventos = 1;
                 m->evento = (struct evento *)malloc(sizeof(struct evento));
                 m->evento->proceso = p;
+                m->evento->tipo = 0;
                 m->siguienteMomento = NULL;
                 m->evento->siguiente = NULL;
-                switch (cambio->incrementar)
-                {
-                case 1:
-                    m->evento->tipo = 1;
-                    m->evento->factor = cambio->factor;
-                    break;
-                case 0:
-                    m->evento->tipo = 2;
-                    m->evento->factor = cambio->factor;
-                    break;
-                default:
-                    break;
-                }
+
                 actualizarColaEventos(colaEventos, m);
-                cambio = cambio->siguiente;
+                struct objetoCambio *cambio = p->cambios->cambios;
+                while (cambio != NULL)
+                {
+                    if (cambio->procesado == 0)
+                    {
+                        m = (struct momento *)malloc(sizeof(struct momento));
+                        m->momento = cambio->momentoCambio;
+                        m->evento = (struct evento *)malloc(sizeof(struct evento));
+                        m->evento->proceso = p;
+                        m->siguienteMomento = NULL;
+                        m->evento->siguiente = NULL;
+                        switch (cambio->incrementar)
+                        {
+                        case 1:
+                            m->evento->tipo = 1;
+                            m->evento->factor = cambio->factor;
+                            break;
+                        case 0:
+                            m->evento->tipo = 2;
+                            m->evento->factor = cambio->factor;
+                            break;
+                        default:
+                            break;
+                        }
+                        actualizarColaEventos(colaEventos, m);
+                                        }
+                    cambio = cambio->siguiente;
+                }
             }
-        }
-        // quitarProceso(colaProcesos, p);
-        p = siguiente;
-        if (colaProcesos->tamanio > 1)
-        {
-            siguiente = siguiente->siguiente;
-        }
-        else
-        {
-            siguiente = NULL;
+            // quitarProceso(colaProcesos, p);
+            p = siguiente;
+            if (colaProcesos->tamanio > 1)
+            {
+                siguiente = siguiente->siguiente;
+            }
+            else
+            {
+                siguiente = NULL;
+            }
         }
     }
     return;
@@ -115,6 +121,23 @@ void actualizarColaEventos(struct colaEventos *colaEventos, struct momento *e)
     if (colaEventos->tamanio == 0)
     {
         colaEventos->eventos = e;
+        return;
+    }
+    else if (colaEventos->tamanio == 1)
+    {
+        if (colaEventos->eventos->momento > e->momento)
+        {
+            colaEventos->eventos->momento -= e->momento;
+            e->siguienteMomento = colaEventos->eventos;
+            colaEventos->eventos = e->siguienteMomento;
+        }
+        else
+        {
+            e->momento -= colaEventos->eventos->momento;
+            colaEventos->eventos->siguienteMomento = e;
+        }
+        colaEventos->tamanio++;
+        return;
     }
     else
     {
@@ -272,7 +295,7 @@ int quitarEventosProceso(struct colaEventos *colaEventos, int pid)
             if (momento->evento->proceso->pid == pid)
             {
                 momentoAnterior->siguienteMomento = momento->siguienteMomento;
-                momento->siguienteMomento = NULL;
+                colaEventos->tamanio--;
             }
             else
             {

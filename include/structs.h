@@ -1,6 +1,9 @@
 
 struct objetoCambio
 {
+    // 1: el cambio YA se ha hecho
+    // 0: No se ha hecho el cambio
+    int procesado;
     int momentoCambio;
     // 1: Multiplicar el número de nucleos actual por el factor
     // 0: Dividir el número de nucleos actual por el factor

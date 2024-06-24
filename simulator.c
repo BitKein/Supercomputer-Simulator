@@ -45,6 +45,7 @@ int main()
     p1->cambios->cambios->incrementar = 1;
     p1->cambios->cambios->factor = 2;
     p1->cambios->cambios->siguiente = NULL;
+    p1->cambios->cambios->procesado = 0;
     p1->siguiente = NULL;
 
     // proceso de prueba 2
@@ -61,6 +62,7 @@ int main()
     p2->cambios->cambios->incrementar = 1;
     p2->cambios->cambios->factor = 2;
     p2->cambios->cambios->siguiente = NULL;
+    p2->cambios->cambios->procesado = 0;
     p2->siguiente = NULL;
 
     // proceso de prueba 3
@@ -77,6 +79,7 @@ int main()
     p3->cambios->cambios->incrementar = 1;
     p3->cambios->cambios->factor = 2;
     p3->cambios->cambios->siguiente = NULL;
+    p3->cambios->cambios->procesado = 0;
     p3->siguiente = NULL;
 
     /*     // proceso de prueba 3
@@ -122,7 +125,7 @@ int main()
     colaEventos->tamanio = 1;
     colaEventos->eventos = (struct momento *)malloc(sizeof(struct momento));
     colaEventos->eventos->momento = 0;
-    colaEventos->eventos->siguienteMomento = NULL;
+    colaEventos->eventos->siguienteMomento = colaEventos->eventos;
     colaEventos->eventos->tiempoDesdeEventoAnterior = 0;
     colaEventos->eventos->numeroEventos = 1;
     colaEventos->eventos->evento = (struct evento *)malloc(sizeof(struct evento));
@@ -180,17 +183,22 @@ int main()
                 p->nucleos = p->nucleos * evento->factor;
                 quitarProceso(sistema->procesosEjec, p);
                 anadirAlFinal(colaProcesos, p);
+                quitarEventosProceso(colaEventos, p->pid);
+                p->cambios->cambios->procesado = 1;
                 break;
             case 2:
                 p->nucleos = p->nucleos / evento->factor;
                 quitarProceso(sistema->procesosEjec, p);
                 anadirAlFinal(colaProcesos, p);
+                quitarEventosProceso(colaEventos, p->pid);
+                p->cambios->cambios->procesado = 1;
                 break;
             default:
                 break;
             }
 
-            quitarEventosProceso(colaEventos, p->pid);
+            /* if (evento->proceso->pid != -1)
+                quitarEventosProceso(colaEventos, p->pid); */
             evento = evento->siguiente;
         }
         // llamar al GC
@@ -198,6 +206,6 @@ int main()
 
         momento = momento->siguienteMomento;
     }
-
+    printf("La cola se ha procesado en %i segundos.\n", sistema->tiempoTranscurrido);
     return 0;
 }
