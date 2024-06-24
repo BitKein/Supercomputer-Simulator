@@ -28,7 +28,7 @@ void fifo(struct colaProcesos *colaProcesos, struct colaEventos *colaEventos, st
         quitarProceso(colaProcesos, p);
         if (sistema->cantNucleosLibres == 0)
             break;
-        if (p->nucleos < sistema->cantNucleosLibres)
+        if (p->nucleos <= sistema->cantNucleosLibres)
         {
             // añadir a la lista de procesos en ejecucion
             anadirAlFinal(sistema->procesosEjec, p);
@@ -251,4 +251,35 @@ int quitarEvento(struct colaEventos *colaEventos, struct evento *evento)
         }
     }
     return 2;
+}
+
+int quitarEventosProceso(struct colaEventos *colaEventos, int pid)
+{
+    if (colaEventos->tamanio == 0)
+        return 1;
+    else if (colaEventos->eventos->evento->proceso->pid == pid)
+    {
+        colaEventos->eventos = NULL;
+        colaEventos->tamanio = 0;
+        return 0;
+    }
+    else
+    {
+        struct momento *momento = colaEventos->eventos->siguienteMomento;
+        struct momento *momentoAnterior = colaEventos->eventos;
+        while (momento != NULL)
+        {
+            if (momento->evento->proceso->pid == pid)
+            {
+                momentoAnterior->siguienteMomento = momento->siguienteMomento;
+                momento->siguienteMomento = NULL;
+            }
+            else
+            {
+                momentoAnterior = momento;
+            }
+            momento = momento->siguienteMomento;
+        }
+    }
+    return 0;
 }

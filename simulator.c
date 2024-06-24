@@ -18,7 +18,7 @@ int main()
     // proceso vacio
     struct proceso *p0 = (struct proceso *)malloc(sizeof(struct proceso));
     p0->cambios = NULL;
-    p0->nucleos = 2;
+    p0->nucleos = 0;
     p0->pid = -1;
     p0->siguiente = NULL;
     // añadir proceso vacio
@@ -34,7 +34,7 @@ int main()
     // proceso de prueba 1
     struct proceso *p1 = (struct proceso *)malloc(sizeof(struct proceso));
     p1->pid = 0;
-    p1->nucleos = 4;
+    p1->nucleos = 8;
     p1->tiempoEjec = 100;
     p1->tiempoDesdeInicioEjec = 0;
     p1->tiempoParaTerminar = p1->tiempoEjec;
@@ -50,7 +50,7 @@ int main()
     // proceso de prueba 2
     struct proceso *p2 = (struct proceso *)malloc(sizeof(struct proceso));
     p2->pid = 1;
-    p2->nucleos = 4;
+    p2->nucleos = 8;
     p2->tiempoEjec = 100;
     p2->tiempoDesdeInicioEjec = 0;
     p2->tiempoParaTerminar = p2->tiempoEjec;
@@ -66,7 +66,7 @@ int main()
     // proceso de prueba 3
     struct proceso *p3 = (struct proceso *)malloc(sizeof(struct proceso));
     p3->pid = 2;
-    p3->nucleos = 4;
+    p3->nucleos = 8;
     p3->tiempoEjec = 100;
     p3->tiempoDesdeInicioEjec = 0;
     p3->tiempoParaTerminar = p3->tiempoEjec;
@@ -131,10 +131,11 @@ int main()
     colaEventos->eventos->evento->siguiente = NULL;
 
     struct momento *momento = colaEventos->eventos;
-    struct evento *evento = momento->evento;
+    struct evento *evento;
     //  bucle principal, por cada momento de tiempo...
     while (momento != NULL)
     {
+        evento = momento->evento;
         // actualizar tiempo que ha transcurrido
         sistema->tiempoTranscurrido += momento->momento;
         // actualizar tiempos cola procesos
@@ -168,6 +169,8 @@ int main()
 
             quitarProceso(sistema->procesosEjec, p); */
 
+            sistema->cantNucleosLibres += p->nucleos;
+
             switch (evento->tipo)
             {
             case 0:
@@ -187,7 +190,7 @@ int main()
                 break;
             }
 
-            //  quitarEvento(colaEventos, evento);
+            quitarEventosProceso(colaEventos, p->pid);
             evento = evento->siguiente;
         }
         // llamar al GC
