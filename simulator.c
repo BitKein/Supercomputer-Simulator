@@ -178,6 +178,8 @@ int main()
             {
             case 0:
                 quitarProceso(sistema->procesosEjec, p);
+                if (p->pid != -1)
+                    quitarEventosProceso(colaEventos, p->pid);
                 break;
             case 1:
                 p->nucleos = p->nucleos * evento->factor;
