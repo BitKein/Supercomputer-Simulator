@@ -81,7 +81,7 @@ void fifo(struct colaProcesos *colaProcesos, struct colaEventos *colaEventos, st
             }
             // quitarProceso(colaProcesos, p);
             p = siguiente;
-            if (colaProcesos->tamanio > 1)
+            if (colaProcesos->tamanio > 1 && siguiente != NULL)
             {
                 siguiente = siguiente->siguiente;
             }
@@ -323,7 +323,8 @@ int quitarEventosProceso(struct colaEventos *colaEventos, int pid)
             if (momento->evento->proceso->pid == pid)
             {
                 momentoAnterior->siguienteMomento = momento->siguienteMomento;
-                momentoAnterior->siguienteMomento->momento += momento->momento;
+                if (momentoAnterior->siguienteMomento != NULL)
+                    momentoAnterior->siguienteMomento->momento += momento->momento;
                 colaEventos->tamanio--;
             }
             else
