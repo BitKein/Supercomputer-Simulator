@@ -132,7 +132,8 @@ void actualizarColaEventos(struct colaEventos *colaEventos, struct momento *e)
         {
             colaEventos->eventos->momento -= e->momento;
             e->siguienteMomento = colaEventos->eventos;
-            colaEventos->eventos = e->siguienteMomento;
+            // colaEventos->eventos = e->siguienteMomento;
+            colaEventos->eventos = e;
         }
         else
         {
@@ -294,14 +295,27 @@ int quitarEventosProceso(struct colaEventos *colaEventos, int pid)
 {
     if (colaEventos->tamanio == 0)
         return 1;
-    else if (colaEventos->eventos->evento->proceso->pid == pid)
+    else if (colaEventos->tamanio == 1)
     {
-        colaEventos->eventos = NULL;
-        colaEventos->tamanio = 0;
-        return 0;
+        if (colaEventos->eventos->evento->proceso->pid == pid)
+        {
+            colaEventos->eventos = NULL;
+            colaEventos->tamanio = 0;
+            return 0;
+        }
+        else
+        {
+            return 1;
+        }
     }
     else
     {
+        if (colaEventos->eventos->evento->proceso->pid == pid)
+        {
+            colaEventos->eventos = colaEventos->eventos->siguienteMomento;
+            colaEventos->tamanio--;
+        }
+
         struct momento *momento = colaEventos->eventos->siguienteMomento;
         struct momento *momentoAnterior = colaEventos->eventos;
         while (momento != NULL)
@@ -309,6 +323,7 @@ int quitarEventosProceso(struct colaEventos *colaEventos, int pid)
             if (momento->evento->proceso->pid == pid)
             {
                 momentoAnterior->siguienteMomento = momento->siguienteMomento;
+                momentoAnterior->siguienteMomento->momento += momento->momento;
                 colaEventos->tamanio--;
             }
             else
@@ -319,4 +334,14 @@ int quitarEventosProceso(struct colaEventos *colaEventos, int pid)
         }
     }
     return 0;
+}
+
+struct momento *siguienteEvento(struct colaEventos *colaEventos)
+{
+    if (colaEventos->tamanio == 0)
+        return NULL;
+    struct momento *primero = colaEventos->eventos;
+    colaEventos->eventos = colaEventos->eventos->siguienteMomento;
+    colaEventos->tamanio--;
+    return primero;
 }

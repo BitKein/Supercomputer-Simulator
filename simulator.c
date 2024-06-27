@@ -128,15 +128,17 @@ int main()
     colaEventos->tamanio = 1;
     colaEventos->eventos = (struct momento *)malloc(sizeof(struct momento));
     colaEventos->eventos->momento = 0;
-    colaEventos->eventos->siguienteMomento = colaEventos->eventos;
+    // colaEventos->eventos->siguienteMomento = colaEventos->eventos;
+    colaEventos->eventos->siguienteMomento = NULL;
     colaEventos->eventos->tiempoDesdeEventoAnterior = 0;
     colaEventos->eventos->numeroEventos = 1;
     colaEventos->eventos->evento = (struct evento *)malloc(sizeof(struct evento));
     colaEventos->eventos->evento->tipo = 0;
     colaEventos->eventos->evento->proceso = p0;
     colaEventos->eventos->evento->siguiente = NULL;
+    // colaEventos->eventos->siguienteMomento = NULL;
 
-    struct momento *momento = colaEventos->eventos;
+    struct momento *momento = siguienteEvento(colaEventos);
     struct evento *evento;
     //  bucle principal, por cada momento de tiempo...
     int i = 0;
@@ -191,8 +193,9 @@ int main()
             {
             case 0:
                 quitarProceso(sistema->procesosEjec, p);
-                if (p->pid != -1)
-                    quitarEventosProceso(colaEventos, p->pid);
+                quitarEventosProceso(colaEventos, p->pid);
+                /* if (p->pid != -1)
+                    quitarEventosProceso(colaEventos, p->pid); */
                 break;
             case 1:
                 p->nucleos = p->nucleos * evento->factor;
@@ -219,7 +222,8 @@ int main()
         // llamar al GC
         gcFunc(colaProcesos, colaEventos, sistema);
 
-        momento = momento->siguienteMomento;
+        momento = siguienteEvento(colaEventos);
+        // momento = momento->siguienteMomento;
         i++;
     }
     printf("La cola se ha procesado en %i segundos.\n", sistema->tiempoTranscurrido);
