@@ -27,11 +27,12 @@ void fifo(struct colaProcesos *colaProcesos, struct colaEventos *colaEventos, st
         struct momento *m;
         while (p != NULL)
         {
-            quitarProceso(colaProcesos, p);
+            // quitarProceso(colaProcesos, p);
             if (sistema->cantNucleosLibres == 0)
                 break;
             if (p->nucleos <= sistema->cantNucleosLibres)
             {
+                quitarProceso(colaProcesos, p);
                 // añadir a la lista de procesos en ejecucion
                 anadirAlFinal(sistema->procesosEjec, p);
                 // actualizar los nucleos libres
@@ -39,7 +40,8 @@ void fifo(struct colaProcesos *colaProcesos, struct colaEventos *colaEventos, st
                 // añadir el evento en el que termina el proceso
                 m = (struct momento *)malloc(sizeof(struct momento));
 
-                m->momento = p->tiempoEjec;
+                // m->momento = p->tiempoEjec;
+                m->momento = p->tiempoParaTerminar;
                 m->numeroEventos = 1;
                 m->evento = (struct evento *)malloc(sizeof(struct evento));
                 m->evento->proceso = p;
@@ -73,7 +75,7 @@ void fifo(struct colaProcesos *colaProcesos, struct colaEventos *colaEventos, st
                             break;
                         }
                         actualizarColaEventos(colaEventos, m);
-                                        }
+                    }
                     cambio = cambio->siguiente;
                 }
             }
@@ -121,6 +123,7 @@ void actualizarColaEventos(struct colaEventos *colaEventos, struct momento *e)
     if (colaEventos->tamanio == 0)
     {
         colaEventos->eventos = e;
+        colaEventos->tamanio++;
         return;
     }
     else if (colaEventos->tamanio == 1)
@@ -215,11 +218,18 @@ int quitarProceso(struct colaProcesos *cola, struct proceso *p)
     }
     else if (cola->tamanio == 1)
     {
-        cola->procesos = NULL;
-        cola->tamanio = 0;
-        return 0;
+        if (cola->procesos->pid == p->pid)
+        {
+            cola->procesos = NULL;
+            cola->tamanio = 0;
+            return 0;
+        }
+        else
+        {
+            return 2;
+        }
     }
-    else if (cola->procesos == p)
+    else if (cola->procesos->pid == p->pid)
     {
         cola->procesos = cola->procesos->siguiente;
         cola->tamanio--;
@@ -228,11 +238,13 @@ int quitarProceso(struct colaProcesos *cola, struct proceso *p)
     }
     else
     {
-        struct proceso *aux = cola->procesos->siguiente->siguiente;
-        struct proceso *auxAnterior = cola->procesos->siguiente;
+        struct proceso *aux = cola->procesos->siguiente;
+        struct proceso *auxAnterior = cola->procesos;
+        // struct proceso *aux = cola->procesos->siguiente->siguiente;
+        // struct proceso *auxAnterior = cola->procesos->siguiente;
         while (aux != NULL)
         {
-            if (aux == p)
+            if (aux->pid == p->pid)
             {
                 // quitar proceso
                 auxAnterior->siguiente = aux->siguiente;
@@ -240,6 +252,8 @@ int quitarProceso(struct colaProcesos *cola, struct proceso *p)
                 cola->tamanio--;
                 return 0;
             }
+            auxAnterior = aux;
+            aux = aux->siguiente;
         }
     }
     return 2;

@@ -21,6 +21,9 @@ int main()
     p0->nucleos = 0;
     p0->pid = -1;
     p0->siguiente = NULL;
+    p0->cambios = (struct cambiosNucleos *)malloc(sizeof(struct cambiosNucleos));
+    p0->cambios->tamanio = 0;
+    p0->cambios->cambios = NULL;
     // añadir proceso vacio
     anadirAlFinal(sistema->procesosEjec, p0);
 
@@ -136,6 +139,7 @@ int main()
     struct momento *momento = colaEventos->eventos;
     struct evento *evento;
     //  bucle principal, por cada momento de tiempo...
+    int i = 0;
     while (momento != NULL)
     {
         evento = momento->evento;
@@ -147,6 +151,15 @@ int main()
         {
             proceso->tiempoDesdeInicioEjec += momento->momento;
             proceso->tiempoParaTerminar -= momento->momento;
+            struct objetoCambio *c = proceso->cambios->cambios;
+            while (c != NULL)
+            {
+                if (c->procesado == 0)
+                {
+                    c->momentoCambio -= momento->momento;
+                }
+                c = c->siguiente;
+            }
             proceso = proceso->siguiente;
         }
 
@@ -207,6 +220,7 @@ int main()
         gcFunc(colaProcesos, colaEventos, sistema);
 
         momento = momento->siguienteMomento;
+        i++;
     }
     printf("La cola se ha procesado en %i segundos.\n", sistema->tiempoTranscurrido);
     return 0;
