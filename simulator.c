@@ -3,7 +3,7 @@
 #include "include/structs.h"
 #include "include/func.h"
 
-int main()
+/* int main()
 {
 
     // init supercompu
@@ -34,21 +34,27 @@ int main()
     // generar la cola de procesos
     struct colaProcesos *colaProcesos = (struct colaProcesos *)malloc(sizeof(struct colaProcesos));
     colaProcesos->tamanio = 0;
+    colaProcesos->procesos = NULL;
     // proceso de prueba 1
     struct proceso *p1 = (struct proceso *)malloc(sizeof(struct proceso));
     p1->pid = 0;
-    p1->nucleos = 16;
+    p1->nucleos = 32;
     p1->tiempoEjec = 100;
     p1->tiempoDesdeInicioEjec = 0;
     p1->tiempoParaTerminar = p1->tiempoEjec;
     p1->cambios = (struct cambiosNucleos *)malloc(sizeof(struct cambiosNucleos));
-    p1->cambios->tamanio = 1;
+    p1->cambios->tamanio = 2;
     p1->cambios->cambios = (struct objetoCambio *)malloc(sizeof(struct objetoCambio));
     p1->cambios->cambios->momentoCambio = 50;
-    p1->cambios->cambios->incrementar = 1;
+    p1->cambios->cambios->incrementar = 0;
     p1->cambios->cambios->factor = 2;
-    p1->cambios->cambios->siguiente = NULL;
     p1->cambios->cambios->procesado = 0;
+    p1->cambios->cambios->siguiente = (struct objetoCambio *)malloc(sizeof(struct objetoCambio));
+    p1->cambios->cambios->siguiente->momentoCambio = 100;
+    p1->cambios->cambios->siguiente->incrementar = 1;
+    p1->cambios->cambios->siguiente->factor = 2;
+    p1->cambios->cambios->siguiente->siguiente = NULL;
+    p1->cambios->cambios->siguiente->procesado = 0;
     p1->siguiente = NULL;
 
     // proceso de prueba 2
@@ -59,13 +65,18 @@ int main()
     p2->tiempoDesdeInicioEjec = 0;
     p2->tiempoParaTerminar = p2->tiempoEjec;
     p2->cambios = (struct cambiosNucleos *)malloc(sizeof(struct cambiosNucleos));
-    p2->cambios->tamanio = 1;
+    p2->cambios->tamanio = 2;
     p2->cambios->cambios = (struct objetoCambio *)malloc(sizeof(struct objetoCambio));
     p2->cambios->cambios->momentoCambio = 50;
     p2->cambios->cambios->incrementar = 0;
     p2->cambios->cambios->factor = 2;
-    p2->cambios->cambios->siguiente = NULL;
     p2->cambios->cambios->procesado = 0;
+    p2->cambios->cambios->siguiente = (struct objetoCambio *)malloc(sizeof(struct objetoCambio));
+    p2->cambios->cambios->siguiente->momentoCambio = 100;
+    p2->cambios->cambios->siguiente->incrementar = 1;
+    p2->cambios->cambios->siguiente->factor = 2;
+    p2->cambios->cambios->siguiente->siguiente = NULL;
+    p2->cambios->cambios->siguiente->procesado = 0;
     p2->siguiente = NULL;
 
     // proceso de prueba 3
@@ -76,13 +87,18 @@ int main()
     p3->tiempoDesdeInicioEjec = 0;
     p3->tiempoParaTerminar = p3->tiempoEjec;
     p3->cambios = (struct cambiosNucleos *)malloc(sizeof(struct cambiosNucleos));
-    p3->cambios->tamanio = 1;
+    p3->cambios->tamanio = 2;
     p3->cambios->cambios = (struct objetoCambio *)malloc(sizeof(struct objetoCambio));
     p3->cambios->cambios->momentoCambio = 50;
     p3->cambios->cambios->incrementar = 0;
     p3->cambios->cambios->factor = 2;
-    p3->cambios->cambios->siguiente = NULL;
     p3->cambios->cambios->procesado = 0;
+    p3->cambios->cambios->siguiente = (struct objetoCambio *)malloc(sizeof(struct objetoCambio));
+    p3->cambios->cambios->siguiente->momentoCambio = 100;
+    p3->cambios->cambios->siguiente->incrementar = 1;
+    p3->cambios->cambios->siguiente->factor = 2;
+    p3->cambios->cambios->siguiente->siguiente = NULL;
+    p3->cambios->cambios->siguiente->procesado = 0;
     p3->siguiente = NULL;
 
     struct proceso *p4 = (struct proceso *)malloc(sizeof(struct proceso));
@@ -101,7 +117,7 @@ int main()
     p4->cambios->cambios->procesado = 0;
     p4->siguiente = NULL;
 
-    /*struct proceso *p5 = (struct proceso *)malloc(sizeof(struct proceso));
+    struct proceso *p5 = (struct proceso *)malloc(sizeof(struct proceso));
     p5->pid = 4;
     p5->nucleos = 8;
     p5->tiempoEjec = 100;
@@ -115,14 +131,14 @@ int main()
     p5->cambios->cambios->factor = 2;
     p5->cambios->cambios->siguiente = NULL;
     p5->cambios->cambios->procesado = 0;
-    p5->siguiente = NULL; */
+    p5->siguiente = NULL;
 
     // añadir procesos a la cola
     anadirAlFinal(colaProcesos, p1);
     anadirAlFinal(colaProcesos, p2);
     anadirAlFinal(colaProcesos, p3);
-    anadirAlFinal(colaProcesos, p4);
-    // anadirAlFinal(colaProcesos, p5);
+    // anadirAlFinal(colaProcesos, p4);
+    //  anadirAlFinal(colaProcesos, p5);
 
     // generar el array con los eventos
     struct colaEventos *colaEventos = (struct colaEventos *)malloc(sizeof(struct colaEventos));
@@ -178,8 +194,6 @@ int main()
             case 0:
                 quitarProceso(sistema->procesosEjec, p);
                 quitarEventosProceso(colaEventos, p->pid);
-                /* if (p->pid != -1)
-                    quitarEventosProceso(colaEventos, p->pid); */
                 break;
             case 1:
                 p->nucleos = p->nucleos * evento->factor;
@@ -199,8 +213,6 @@ int main()
                 break;
             }
 
-            /* if (evento->proceso->pid != -1)
-                quitarEventosProceso(colaEventos, p->pid); */
             evento = evento->siguiente;
         }
         // llamar al GC
@@ -211,5 +223,40 @@ int main()
         i++;
     }
     printf("La cola se ha procesado en %i segundos.\n", sistema->tiempoTranscurrido);
+    return 0;
+} */
+
+int main()
+{
+    /* struct colaEventos *colaEventos = (struct colaEventos *)malloc(sizeof(struct colaEventos));
+    colaEventos->eventos = NULL;
+    colaEventos->tamanio = 0;
+    struct momento *e1 = (struct momento *)malloc(sizeof(struct momento));
+    e1->momento = 40;
+    e1->siguienteMomento = NULL;
+    actualizarColaEventos(colaEventos, e1);
+
+    struct momento *e2 = (struct momento *)malloc(sizeof(struct momento));
+    e2->momento = 60;
+    e2->siguienteMomento = NULL;
+    actualizarColaEventos(colaEventos, e2);
+
+    struct momento *e3 = (struct momento *)malloc(sizeof(struct momento));
+    e3->momento = 10;
+    e3->siguienteMomento = NULL;
+    actualizarColaEventos(colaEventos, e3);
+
+    struct momento *e4 = (struct momento *)malloc(sizeof(struct momento));
+    e4->momento = 0;
+    e4->siguienteMomento = NULL;
+    actualizarColaEventos(colaEventos, e4);
+
+    struct momento *aux = colaEventos->eventos;
+    while (aux != NULL)
+    {
+        printf(" -> %i", aux->momento);
+        aux = aux->siguienteMomento;
+    } */
+
     return 0;
 }

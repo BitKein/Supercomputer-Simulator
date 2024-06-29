@@ -25,8 +25,10 @@ void fifo(struct colaProcesos *colaProcesos, struct colaEventos *colaEventos, st
         if (colaProcesos->tamanio > 1)
             siguiente = colaProcesos->procesos->siguiente;
         struct momento *m;
-        while (p != NULL)
+        int i = 0;
+        while (p != NULL && i < colaProcesos->tamanio)
         {
+            i++;
             // quitarProceso(colaProcesos, p);
             if (sistema->cantNucleosLibres == 0)
                 break;
@@ -118,12 +120,14 @@ void fifo(struct colaProcesos *colaProcesos, struct colaEventos *colaEventos, st
     }
 } */
 
+// FUNCIONA PERFECTAMENTE
 void actualizarColaEventos(struct colaEventos *colaEventos, struct momento *e)
 {
     if (colaEventos->tamanio == 0)
     {
         colaEventos->eventos = e;
         colaEventos->tamanio++;
+        colaEventos->eventos->siguienteMomento = NULL;
         return;
     }
     else if (colaEventos->tamanio == 1)
@@ -145,24 +149,33 @@ void actualizarColaEventos(struct colaEventos *colaEventos, struct momento *e)
     }
     else
     {
-
-        struct momento *aux = colaEventos->eventos;
-        struct momento *auxAnterior = NULL;
-        // struct momento *auxAnteriorAnterior = NULL;
-        while (aux != NULL)
+        if (colaEventos->eventos->momento > e->momento)
         {
-            if (aux->momento > e->momento)
-            {
-                aux->momento -= e->momento;
-                break;
-            }
-            e->momento -= aux->momento;
-            // auxAnteriorAnterior = auxAnterior;
-            auxAnterior = aux;
-            aux = aux->siguienteMomento;
+            colaEventos->eventos->momento -= e->momento;
+            e->siguienteMomento = colaEventos->eventos;
+            colaEventos->eventos = e;
         }
-        e->siguienteMomento = aux;
-        auxAnterior->siguienteMomento = e;
+        else
+        {
+
+            struct momento *aux = colaEventos->eventos;
+            struct momento *auxAnterior = NULL;
+            // struct momento *auxAnteriorAnterior = NULL;
+            while (aux != NULL)
+            {
+                if (aux->momento > e->momento)
+                {
+                    aux->momento -= e->momento;
+                    break;
+                }
+                e->momento -= aux->momento;
+                // auxAnteriorAnterior = auxAnterior;
+                auxAnterior = aux;
+                aux = aux->siguienteMomento;
+            }
+            e->siguienteMomento = aux;
+            auxAnterior->siguienteMomento = e;
+        }
     }
     colaEventos->tamanio++;
 }
@@ -170,6 +183,7 @@ void actualizarColaEventos(struct colaEventos *colaEventos, struct momento *e)
 /*
 añadir proceso al final de la cola de procesos
 */
+
 void anadirAlFinal(struct colaProcesos *cola, struct proceso *p)
 {
     if (cola->tamanio == 0)
