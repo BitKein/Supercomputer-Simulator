@@ -37,7 +37,7 @@ int main()
     // proceso de prueba 1
     struct proceso *p1 = (struct proceso *)malloc(sizeof(struct proceso));
     p1->pid = 0;
-    p1->nucleos = 8;
+    p1->nucleos = 16;
     p1->tiempoEjec = 100;
     p1->tiempoDesdeInicioEjec = 0;
     p1->tiempoParaTerminar = p1->tiempoEjec;
@@ -54,7 +54,7 @@ int main()
     // proceso de prueba 2
     struct proceso *p2 = (struct proceso *)malloc(sizeof(struct proceso));
     p2->pid = 1;
-    p2->nucleos = 8;
+    p2->nucleos = 32;
     p2->tiempoEjec = 100;
     p2->tiempoDesdeInicioEjec = 0;
     p2->tiempoParaTerminar = p2->tiempoEjec;
@@ -62,7 +62,7 @@ int main()
     p2->cambios->tamanio = 1;
     p2->cambios->cambios = (struct objetoCambio *)malloc(sizeof(struct objetoCambio));
     p2->cambios->cambios->momentoCambio = 50;
-    p2->cambios->cambios->incrementar = 1;
+    p2->cambios->cambios->incrementar = 0;
     p2->cambios->cambios->factor = 2;
     p2->cambios->cambios->siguiente = NULL;
     p2->cambios->cambios->procesado = 0;
@@ -71,7 +71,7 @@ int main()
     // proceso de prueba 3
     struct proceso *p3 = (struct proceso *)malloc(sizeof(struct proceso));
     p3->pid = 2;
-    p3->nucleos = 8;
+    p3->nucleos = 32;
     p3->tiempoEjec = 100;
     p3->tiempoDesdeInicioEjec = 0;
     p3->tiempoParaTerminar = p3->tiempoEjec;
@@ -79,7 +79,7 @@ int main()
     p3->cambios->tamanio = 1;
     p3->cambios->cambios = (struct objetoCambio *)malloc(sizeof(struct objetoCambio));
     p3->cambios->cambios->momentoCambio = 50;
-    p3->cambios->cambios->incrementar = 1;
+    p3->cambios->cambios->incrementar = 0;
     p3->cambios->cambios->factor = 2;
     p3->cambios->cambios->siguiente = NULL;
     p3->cambios->cambios->procesado = 0;
@@ -87,73 +87,42 @@ int main()
 
     struct proceso *p4 = (struct proceso *)malloc(sizeof(struct proceso));
     p4->pid = 3;
-    p4->nucleos = 8;
-    p4->tiempoEjec = 150;
+    p4->nucleos = 32;
+    p4->tiempoEjec = 100;
     p4->tiempoDesdeInicioEjec = 0;
     p4->tiempoParaTerminar = p4->tiempoEjec;
     p4->cambios = (struct cambiosNucleos *)malloc(sizeof(struct cambiosNucleos));
     p4->cambios->tamanio = 1;
     p4->cambios->cambios = (struct objetoCambio *)malloc(sizeof(struct objetoCambio));
     p4->cambios->cambios->momentoCambio = 50;
-    p4->cambios->cambios->incrementar = 1;
+    p4->cambios->cambios->incrementar = 0;
     p4->cambios->cambios->factor = 2;
     p4->cambios->cambios->siguiente = NULL;
     p4->cambios->cambios->procesado = 0;
     p4->siguiente = NULL;
 
-    struct proceso *p5 = (struct proceso *)malloc(sizeof(struct proceso));
+    /*struct proceso *p5 = (struct proceso *)malloc(sizeof(struct proceso));
     p5->pid = 4;
     p5->nucleos = 8;
-    p5->tiempoEjec = 150;
+    p5->tiempoEjec = 100;
     p5->tiempoDesdeInicioEjec = 0;
     p5->tiempoParaTerminar = p5->tiempoEjec;
     p5->cambios = (struct cambiosNucleos *)malloc(sizeof(struct cambiosNucleos));
     p5->cambios->tamanio = 1;
     p5->cambios->cambios = (struct objetoCambio *)malloc(sizeof(struct objetoCambio));
     p5->cambios->cambios->momentoCambio = 50;
-    p5->cambios->cambios->incrementar = 1;
+    p5->cambios->cambios->incrementar = 0;
     p5->cambios->cambios->factor = 2;
     p5->cambios->cambios->siguiente = NULL;
     p5->cambios->cambios->procesado = 0;
-    p5->siguiente = NULL;
-
-    /*     // proceso de prueba 3
-        struct proceso *p4 = (struct proceso *)malloc(sizeof(struct proceso));
-        p4->pid = 3;
-        p4->nucleos = 4;
-        p4->tiempoEjec = 100;
-        p4->tiempoDesdeInicioEjec = 0;
-        p4->tiempoParaTerminar = p4->tiempoEjec;
-        p4->cambios = (struct cambiosNucleos *)malloc(sizeof(struct cambiosNucleos));
-        p4->cambios->tamanio = 1;
-        p4->cambios->cambios = (struct objetoCambio *)malloc(sizeof(struct objetoCambio));
-        p4->cambios->cambios->momentoCambio = 50;
-        p4->cambios->cambios->incrementar = 1;
-        p4->cambios->cambios->factor = 2;
-        p4->siguiente = NULL;
-
-        // proceso de prueba 3
-        struct proceso *p5 = (struct proceso *)malloc(sizeof(struct proceso));
-        p5->pid = 3;
-        p5->nucleos = 4;
-        p5->tiempoEjec = 100;
-        p5->tiempoDesdeInicioEjec = 0;
-        p5->tiempoParaTerminar = p5->tiempoEjec;
-        p5->cambios = (struct cambiosNucleos *)malloc(sizeof(struct cambiosNucleos));
-        p5->cambios->tamanio = 1;
-        p5->cambios->cambios = (struct objetoCambio *)malloc(sizeof(struct objetoCambio));
-        p5->cambios->cambios->momentoCambio = 50;
-        p5->cambios->cambios->incrementar = 1;
-        p5->cambios->cambios->factor = 2;
-        p5->cambios->cambios->siguiente=NULL;
-        p5->siguiente = NULL; */
+    p5->siguiente = NULL; */
 
     // añadir procesos a la cola
     anadirAlFinal(colaProcesos, p1);
     anadirAlFinal(colaProcesos, p2);
     anadirAlFinal(colaProcesos, p3);
     anadirAlFinal(colaProcesos, p4);
-    anadirAlFinal(colaProcesos, p5);
+    // anadirAlFinal(colaProcesos, p5);
 
     // generar el array con los eventos
     struct colaEventos *colaEventos = (struct colaEventos *)malloc(sizeof(struct colaEventos));
@@ -201,23 +170,6 @@ int main()
         while (evento != NULL)
         {
             struct proceso *p = evento->proceso;
-
-            /* if (evento->tipo != 0)
-            {
-                if (evento->tipo == 1)
-                {
-                    // cambiar los nucleos que necesita
-                    p->nucleos = p->nucleos * evento->factor;
-                }
-                if (evento->tipo == 2)
-                {
-                    // cambiar los nucleos que necesita
-                    p->nucleos = p->nucleos / evento->factor;
-                }
-                anadirAlFinal(colaProcesos, p);
-            }
-
-            quitarProceso(sistema->procesosEjec, p); */
 
             sistema->cantNucleosLibres += p->nucleos;
 
