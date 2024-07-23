@@ -28,8 +28,8 @@ void fifo(struct colaProcesos *colaProcesos, struct colaEventos *colaEventos, st
         int i = 0;
         while (p != NULL && i < colaProcesos->tamanio)
         {
-            i++;
-            // quitarProceso(colaProcesos, p);
+            // i++;
+            //  quitarProceso(colaProcesos, p);
             if (sistema->cantNucleosLibres == 0)
                 break;
             if (p->nucleos <= sistema->cantNucleosLibres)
@@ -63,15 +63,16 @@ void fifo(struct colaProcesos *colaProcesos, struct colaEventos *colaEventos, st
                         m->evento->proceso = p;
                         m->siguienteMomento = NULL;
                         m->evento->siguiente = NULL;
+                        m->evento->factor = cambio->factor;
                         switch (cambio->incrementar)
                         {
                         case 1:
                             m->evento->tipo = 1;
-                            m->evento->factor = cambio->factor;
+                            // m->evento->factor = cambio->factor;
                             break;
                         case 0:
                             m->evento->tipo = 2;
-                            m->evento->factor = cambio->factor;
+                            // m->evento->factor = cambio->factor;
                             break;
                         default:
                             break;
@@ -80,6 +81,10 @@ void fifo(struct colaProcesos *colaProcesos, struct colaEventos *colaEventos, st
                     }
                     cambio = cambio->siguiente;
                 }
+            }
+            else
+            {
+                i++;
             }
             // quitarProceso(colaProcesos, p);
             p = siguiente;
@@ -184,6 +189,7 @@ void actualizarColaEventos(struct colaEventos *colaEventos, struct momento *e)
 añadir proceso al final de la cola de procesos
 */
 
+// FUNCIONA PERFECTAMENTE
 void anadirAlFinal(struct colaProcesos *cola, struct proceso *p)
 {
     if (cola->tamanio == 0)
@@ -225,6 +231,7 @@ void anadirAlPrincipio(struct colaProcesos *cola, struct proceso *p)
     return;
 }
 
+// FUNCIONA PERFECTAMENTE
 int quitarProceso(struct colaProcesos *cola, struct proceso *p)
 {
     if (cola->tamanio == 0)
@@ -305,6 +312,7 @@ int quitarEvento(struct colaEventos *colaEventos, struct evento *evento)
     return 2;
 }
 
+// FUNCIONA PERFECTAMENTE
 int quitarEventosProceso(struct colaEventos *colaEventos, int pid)
 {
     if (colaEventos->tamanio == 0)
@@ -324,10 +332,14 @@ int quitarEventosProceso(struct colaEventos *colaEventos, int pid)
     }
     else
     {
-        if (colaEventos->eventos->evento->proceso->pid == pid)
+        while (colaEventos->eventos->evento->proceso->pid == pid)
         {
+            if (colaEventos->eventos->siguienteMomento != NULL)
+                colaEventos->eventos->siguienteMomento->momento += colaEventos->eventos->momento;
             colaEventos->eventos = colaEventos->eventos->siguienteMomento;
             colaEventos->tamanio--;
+            if (colaEventos->eventos == NULL)
+                return 0;
         }
 
         struct momento *momento = colaEventos->eventos->siguienteMomento;
@@ -351,6 +363,7 @@ int quitarEventosProceso(struct colaEventos *colaEventos, int pid)
     return 0;
 }
 
+// FUNCIONA PERFECTAMENTE
 struct momento *siguienteEvento(struct colaEventos *colaEventos)
 {
     if (colaEventos->tamanio == 0)
