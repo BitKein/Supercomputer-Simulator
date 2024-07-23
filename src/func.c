@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "../include/func.h"
+#include <stdbool.h>
 
 // funciones de Gestión de Colas
 
@@ -372,4 +373,23 @@ struct momento *siguienteEvento(struct colaEventos *colaEventos)
     colaEventos->eventos = colaEventos->eventos->siguienteMomento;
     colaEventos->tamanio--;
     return primero;
+}
+
+void marcarSigCambio(struct proceso *p)
+{
+    bool seguir = 1;
+    struct objetoCambio *c = p->cambios->cambios;
+    while (seguir && c != NULL)
+    {
+        if (c->procesado == 0)
+        {
+            c->procesado = 1;
+            seguir = 0;
+        }
+        else
+        {
+            c = c->siguiente;
+        }
+    }
+    return;
 }

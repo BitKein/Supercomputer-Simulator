@@ -200,14 +200,16 @@ int main()
                 quitarProceso(sistema->procesosEjec, p);
                 anadirAlFinal(colaProcesos, p);
                 quitarEventosProceso(colaEventos, p->pid);
-                p->cambios->cambios->procesado = 1;
+                marcarSigCambio(p);
+                // p->cambios->cambios->procesado = 1;
                 break;
             case 2:
                 p->nucleos = p->nucleos / evento->factor;
                 quitarProceso(sistema->procesosEjec, p);
                 anadirAlFinal(colaProcesos, p);
                 quitarEventosProceso(colaEventos, p->pid);
-                p->cambios->cambios->procesado = 1;
+                marcarSigCambio(p);
+                // p->cambios->cambios->procesado = 1;
                 break;
             default:
                 break;
