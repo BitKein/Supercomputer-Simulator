@@ -1,0 +1,5 @@
+
+Cuando llega al momento250, a los 3 procesos solo les quedan 50 para terminar, sin 
+ningun cambio mas. En vez de ir terminar, procesa mas cambios que no existen y termina, sin 
+añadir al tiempo total transcurrido nada de tiempo.
+Creo que lo que falla es que los eventos generados son incorrectos --> depurar fifo desde 200
