@@ -314,7 +314,11 @@ int main(int argc, char *argv[])
         // momento = momento->siguienteMomento;
         i++;
     }
-    printf("La cola se ha procesado en %i segundos.\n", sistema->tiempoTranscurrido);
+    int dias = sistema->tiempoTranscurrido / (60 * 60 * 24);
+    int horas = sistema->tiempoTranscurrido / (60 * 60) - dias * 24;
+    int minutos = sistema->tiempoTranscurrido / 60 - dias * 60 * 24 - horas * 60;
+    int segundos = sistema->tiempoTranscurrido - dias * 60 * 60 * 24 - horas * 60 * 60 - minutos * 60;
+    printf("La cola se ha procesado en %i dias, %i horas, %i minutos y %i segundos. (%i seg en total)\n", dias, horas, minutos, segundos, sistema->tiempoTranscurrido);
     fclose(archivo);
     return 0;
 }
