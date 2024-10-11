@@ -56,28 +56,39 @@ int main(int argc, char *argv[])
         proceso->cambios = (struct cambiosNucleos *)malloc(sizeof(struct cambiosNucleos));
         token = strtok(NULL, delimiters);
         proceso->cambios->tamanio = atoi(token);
-        proceso->cambios->cambios = (struct objetoCambio *)malloc(sizeof(struct objetoCambio));
-        p = 0;
-        aux = proceso->cambios->cambios;
-        while (p < proceso->cambios->tamanio)
+        // proceso->cambios->cambios = (struct objetoCambio *)malloc(sizeof(struct objetoCambio));
+        // p = 0;
+        // aux = proceso->cambios->cambios;
+        if (proceso->cambios->tamanio == 0)
         {
-            token = strtok(NULL, delimiters);
-            aux->momentoCambio = atoi(token);
-            token = strtok(NULL, delimiters);
-            aux->incrementar = atoi(token);
-            token = strtok(NULL, delimiters);
-            aux->factor = atoi(token);
-            aux->procesado = 0;
-
-            if (p + 1 == proceso->cambios->tamanio)
-                aux->siguiente = NULL;
-            else
-            {
-                aux->siguiente = (struct objetoCambio *)malloc(sizeof(struct objetoCambio));
-                aux = aux->siguiente;
-            }
-            p++;
+            proceso->cambios->cambios = NULL;
         }
+        else
+        {
+            proceso->cambios->cambios = (struct objetoCambio *)malloc(sizeof(struct objetoCambio));
+            p = 0;
+            aux = proceso->cambios->cambios;
+            while (p < proceso->cambios->tamanio)
+            {
+                token = strtok(NULL, delimiters);
+                aux->momentoCambio = atoi(token);
+                token = strtok(NULL, delimiters);
+                aux->incrementar = atoi(token);
+                token = strtok(NULL, delimiters);
+                aux->factor = atoi(token);
+                aux->procesado = 0;
+
+                if (p + 1 == proceso->cambios->tamanio)
+                    aux->siguiente = NULL;
+                else
+                {
+                    aux->siguiente = (struct objetoCambio *)malloc(sizeof(struct objetoCambio));
+                    aux = aux->siguiente;
+                }
+                p++;
+            }
+        }
+
         proceso->siguiente = NULL;
         /* proceso->cambios->cambios = (struct objetoCambio *)malloc(sizeof(struct objetoCambio));
         token = strtok(NULL, ",");
