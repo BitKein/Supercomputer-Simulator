@@ -16,7 +16,8 @@ de procesos para que sean procesados por el simulador
 #define MAX_TEST_LINE 500
 #define MAX_NUCLEOS 64
 #define MAX_TEJEC 99999
-#define MAX_CAMBIOS 4
+#define MIN_CAMBIOS 0
+#define MAX_CAMBIOS 0
 #define MAX_FACTOR_POW 3
 #define MAX_QUEUE_SIZE 100
 
@@ -104,6 +105,8 @@ int main()
         sprintf(linea, "%s%d,", linea, tejec);
         // añadimos numero de cambios
         cambios = (int)(rand() % (MAX_CAMBIOS + 1));
+        while (cambios < MIN_CAMBIOS)
+            cambios = (int)(rand() % (MAX_CAMBIOS + 1));
         if (cambios != 0)
             sprintf(linea, "%s%d,", linea, cambios);
         else
