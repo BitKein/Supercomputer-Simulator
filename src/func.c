@@ -1,5 +1,4 @@
 #include "../include/structs.h"
-// #include <cstddef>
 #include <stdlib.h>
 #include <stdio.h>
 #include "../include/func.h"
@@ -29,8 +28,6 @@ void fifo(struct colaProcesos *colaProcesos, struct colaEventos *colaEventos, st
         int i = 0;
         while (p != NULL && i < colaProcesos->tamanio)
         {
-            // i++;
-            //  quitarProceso(colaProcesos, p);
             if (sistema->cantNucleosLibres == 0)
                 break;
             if (p->nucleos <= sistema->cantNucleosLibres)
@@ -43,7 +40,6 @@ void fifo(struct colaProcesos *colaProcesos, struct colaEventos *colaEventos, st
                 // añadir el evento en el que termina el proceso
                 m = (struct momento *)malloc(sizeof(struct momento));
 
-                // m->momento = p->tiempoEjec;
                 m->momento = p->tiempoParaTerminar;
                 m->numeroEventos = 1;
                 m->evento = (struct evento *)malloc(sizeof(struct evento));
@@ -69,11 +65,9 @@ void fifo(struct colaProcesos *colaProcesos, struct colaEventos *colaEventos, st
                         {
                         case 1:
                             m->evento->tipo = 1;
-                            // m->evento->factor = cambio->factor;
                             break;
                         case 0:
                             m->evento->tipo = 2;
-                            // m->evento->factor = cambio->factor;
                             break;
                         default:
                             break;
@@ -87,7 +81,6 @@ void fifo(struct colaProcesos *colaProcesos, struct colaEventos *colaEventos, st
             {
                 i++;
             }
-            // quitarProceso(colaProcesos, p);
             p = siguiente;
             if (colaProcesos->tamanio > 1 && siguiente != NULL)
             {
@@ -142,7 +135,6 @@ void actualizarColaEventos(struct colaEventos *colaEventos, struct momento *e)
         {
             colaEventos->eventos->momento -= e->momento;
             e->siguienteMomento = colaEventos->eventos;
-            // colaEventos->eventos = e->siguienteMomento;
             colaEventos->eventos = e;
         }
         else
@@ -166,7 +158,6 @@ void actualizarColaEventos(struct colaEventos *colaEventos, struct momento *e)
 
             struct momento *aux = colaEventos->eventos;
             struct momento *auxAnterior = NULL;
-            // struct momento *auxAnteriorAnterior = NULL;
             while (aux != NULL)
             {
                 if (aux->momento > e->momento)
@@ -175,7 +166,6 @@ void actualizarColaEventos(struct colaEventos *colaEventos, struct momento *e)
                     break;
                 }
                 e->momento -= aux->momento;
-                // auxAnteriorAnterior = auxAnterior;
                 auxAnterior = aux;
                 aux = aux->siguienteMomento;
             }
@@ -206,7 +196,6 @@ void anadirAlFinal(struct colaProcesos *cola, struct proceso *p)
         }
 
         aux->siguiente = p;
-        // aux->siguiente->siguiente = NULL;
     }
     cola->tamanio++;
     return;
@@ -263,8 +252,6 @@ int quitarProceso(struct colaProcesos *cola, struct proceso *p)
     {
         struct proceso *aux = cola->procesos->siguiente;
         struct proceso *auxAnterior = cola->procesos;
-        // struct proceso *aux = cola->procesos->siguiente->siguiente;
-        // struct proceso *auxAnterior = cola->procesos->siguiente;
         while (aux != NULL)
         {
             if (aux->pid == p->pid)
