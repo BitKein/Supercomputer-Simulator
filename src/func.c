@@ -95,6 +95,93 @@ void fifo(struct colaProcesos *colaProcesos, struct colaEventos *colaEventos, st
     return;
 }
 
+/*
+- Si el siguiente proceso en la lista para entrar en ejecución
+no entra, se prueban los K siguientes.
+- Si un proceso en ejecución pasa a necesitar más o menos núcleos, sale
+de ejecución y se pone el primero en la cola.
+*/
+
+void bf(struct colaProcesos *colaProcesos, struct colaEventos *colaEventos, struct sistema *sistema, int K)
+{
+
+    if (colaProcesos->tamanio > 0)
+    {
+        struct proceso *p = colaProcesos->procesos;
+        struct proceso *siguiente = NULL;
+        if (colaProcesos->tamanio > 1)
+            siguiente = colaProcesos->procesos->siguiente;
+        struct momento *m;
+        int i = 0;
+        while (p != NULL && i < K)
+        {
+            if (sistema->cantNucleosLibres == 0)
+                break;
+            if (p->nucleos <= sistema->cantNucleosLibres)
+            {
+                quitarProceso(colaProcesos, p);
+                // añadir a la lista de procesos en ejecucion
+                anadirAlFinal(sistema->procesosEjec, p);
+                // actualizar los nucleos libres
+                sistema->cantNucleosLibres -= p->nucleos;
+                // añadir el evento en el que termina el proceso
+                m = (struct momento *)malloc(sizeof(struct momento));
+
+                m->momento = p->tiempoParaTerminar;
+                m->numeroEventos = 1;
+                m->evento = (struct evento *)malloc(sizeof(struct evento));
+                m->evento->proceso = p;
+                m->evento->tipo = 0;
+                m->siguienteMomento = NULL;
+                m->evento->siguiente = NULL;
+
+                actualizarColaEventos(colaEventos, m);
+                struct objetoCambio *cambio = p->cambios->cambios;
+                while (cambio != NULL)
+                {
+                    if (cambio->procesado == 0)
+                    {
+                        m = (struct momento *)malloc(sizeof(struct momento));
+                        m->momento = cambio->momentoCambio;
+                        m->evento = (struct evento *)malloc(sizeof(struct evento));
+                        m->evento->proceso = p;
+                        m->siguienteMomento = NULL;
+                        m->evento->siguiente = NULL;
+                        m->evento->factor = cambio->factor;
+                        switch (cambio->incrementar)
+                        {
+                        case 1:
+                            m->evento->tipo = 1;
+                            break;
+                        case 0:
+                            m->evento->tipo = 2;
+                            break;
+                        default:
+                            break;
+                        }
+                        actualizarColaEventos(colaEventos, m);
+                    }
+                    cambio = cambio->siguiente;
+                }
+            }
+            else
+            {
+                i++;
+            }
+            p = siguiente;
+            if (colaProcesos->tamanio > 1 && siguiente != NULL)
+            {
+                siguiente = siguiente->siguiente;
+            }
+            else
+            {
+                siguiente = NULL;
+            }
+        }
+    }
+    return;
+}
+
 /*  FUNCIONES AUXILIARES    */
 
 /* struct colaEventos *generarColaEventos(struct sistema *sistema)

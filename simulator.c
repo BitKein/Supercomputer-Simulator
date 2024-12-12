@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "include/structs.h"
 #include "include/func.h"
+#include "include/globals.h"
 
 int main(int argc, char *argv[])
 {
@@ -56,7 +57,12 @@ int main(int argc, char *argv[])
         proceso->cambios = (struct cambiosNucleos *)malloc(sizeof(struct cambiosNucleos));
         token = strtok(NULL, delimiters);
         proceso->cambios->tamanio = atoi(token);
-        if (proceso->cambios->tamanio == 0)
+        if (!MALLEABILITY_ON)
+        {
+            proceso->cambios->tamanio = 0;
+            proceso->cambios->cambios = NULL;
+        }
+        else if (proceso->cambios->tamanio == 0)
         {
             proceso->cambios->cambios = NULL;
         }
@@ -166,7 +172,8 @@ int main(int argc, char *argv[])
             case 1:
                 p->nucleos = p->nucleos * evento->factor;
                 quitarProceso(sistema->procesosEjec, p);
-                anadirAlFinal(colaProcesos, p);
+                anadirAlPrincipio(colaProcesos, p);
+                // anadirAlFinal(colaProcesos, p);
                 quitarEventosProceso(colaEventos, p->pid);
                 marcarSigCambio(p);
                 // p->cambios->cambios->procesado = 1;
@@ -174,7 +181,8 @@ int main(int argc, char *argv[])
             case 2:
                 p->nucleos = p->nucleos / evento->factor;
                 quitarProceso(sistema->procesosEjec, p);
-                anadirAlFinal(colaProcesos, p);
+                anadirAlPrincipio(colaProcesos, p);
+                // anadirAlFinal(colaProcesos, p);
                 quitarEventosProceso(colaEventos, p->pid);
                 marcarSigCambio(p);
                 // p->cambios->cambios->procesado = 1;

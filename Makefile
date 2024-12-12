@@ -4,7 +4,7 @@
 simulator: simulator.c func.o
 	gcc -g -Wall -O0 -o simulator simulator.c func.o
 
-func.o: ./src/func.c ./include/func.h
+func.o: ./src/func.c ./include/func.h ./include/globals.h
 	gcc -g -Wall -O0 -c -o func.o ./src/func.c
 
 .PHONY: clean
