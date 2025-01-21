@@ -2,6 +2,7 @@
   "files.associations": {
     "stdio.h": "c",
     "func.h": "c",
-    "globals.h": "c"
+    "globals.h": "c",
+    "stats.h": "c"
   }
 }

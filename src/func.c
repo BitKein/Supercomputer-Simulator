@@ -467,3 +467,8 @@ void marcarSigCambio(struct proceso *p)
     }
     return;
 }
+
+float actualizarTiempoParaTerminar(int tEjec, int viejoN, int nuevoN)
+{
+    return tEjec * viejoN / nuevoN;
+}

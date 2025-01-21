@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "include/structs.h"
 #include "include/func.h"
+#include "include/stats.h"
 #include "include/globals.h"
 
 int main(int argc, char *argv[])
@@ -98,6 +99,14 @@ int main(int argc, char *argv[])
         token = strtok(NULL, delimiters);
     }
 
+    numProcesosCola = colaProcesos->tamanio;
+    procTerminados = (int *)malloc(numProcesosCola * sizeof(int));
+    for (int i = 0; i < numProcesosCola; i++)
+        procTerminados[i] = 0;
+
+    // inicializar memoria estadisticas
+    inicEstadisticas();
+
     // proceso vacio
     struct proceso *p0 = (struct proceso *)malloc(sizeof(struct proceso));
     p0->cambios = NULL;
@@ -156,6 +165,9 @@ int main(int argc, char *argv[])
             proceso = proceso->siguiente;
         }
 
+        // actualizar stats
+        actEstadisticas(sistema->procesosEjec, momento->momento);
+
         // por cada evento...
         while (evento != NULL)
         {
@@ -168,8 +180,10 @@ int main(int argc, char *argv[])
             case 0:
                 quitarProceso(sistema->procesosEjec, p);
                 quitarEventosProceso(colaEventos, p->pid);
+                procTerminados[p->pid] = 1;
                 break;
             case 1:
+                p->tiempoParaTerminar = actualizarTiempoParaTerminar(p->tiempoParaTerminar, p->nucleos, (p->nucleos * evento->factor));
                 p->nucleos = p->nucleos * evento->factor;
                 quitarProceso(sistema->procesosEjec, p);
                 anadirAlPrincipio(colaProcesos, p);
@@ -179,6 +193,7 @@ int main(int argc, char *argv[])
                 // p->cambios->cambios->procesado = 1;
                 break;
             case 2:
+                p->tiempoParaTerminar = actualizarTiempoParaTerminar(p->tiempoParaTerminar, p->nucleos, (p->nucleos * evento->factor));
                 p->nucleos = p->nucleos / evento->factor;
                 quitarProceso(sistema->procesosEjec, p);
                 anadirAlPrincipio(colaProcesos, p);
@@ -196,15 +211,35 @@ int main(int argc, char *argv[])
         // llamar al GC
         gcFunc(colaProcesos, colaEventos, sistema);
 
+        utilization(sistema->cantTotalNucleos - sistema->cantNucleosLibres);
+
         momento = siguienteEvento(colaEventos);
         // momento = momento->siguienteMomento;
         i++;
     }
-    int dias = sistema->tiempoTranscurrido / (60 * 60 * 24);
+    /* int dias = sistema->tiempoTranscurrido / (60 * 60 * 24);
     int horas = sistema->tiempoTranscurrido / (60 * 60) - dias * 24;
     int minutos = sistema->tiempoTranscurrido / 60 - dias * 60 * 24 - horas * 60;
     int segundos = sistema->tiempoTranscurrido - dias * 60 * 60 * 24 - horas * 60 * 60 - minutos * 60;
-    printf("La cola se ha procesado en %i dias, %i horas, %i minutos y %i segundos. (%i seg en total)\n", dias, horas, minutos, segundos, sistema->tiempoTranscurrido);
+    printf("La cola se ha procesado en %i dias, %i horas, %i minutos y %i segundos. (%i seg en total)\n", dias, horas, minutos, segundos, sistema->tiempoTranscurrido); */
+    printf(" -- EXECUTION STATS -- \n");
+    printf("Queue makespan: %d\n", sistema->tiempoTranscurrido);
+    printf("Queue waiting time: %d\n", queue_wait_time);
+    printf("Job waiting time (ordered by PID): ");
+    for (int i = 0; i < numProcesosCola; i++)
+    {
+        printf("%i ", job_wait_time[i]);
+    }
+    printf("\n");
+    // printf("Queue total time: %d\n", queue_total_time);
+    printf("Job total time (ordered by PID): ");
+    for (int i = 0; i < numProcesosCola; i++)
+    {
+        printf("%i ", job_total_time[i]);
+    }
+    printf("\n");
+    // utilization
+
     fclose(archivo);
     return 0;
 }

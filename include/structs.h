@@ -24,7 +24,7 @@ struct proceso
     int nucleos;
     int tiempoEjec;
     int tiempoDesdeInicioEjec;
-    int tiempoParaTerminar;
+    float tiempoParaTerminar;
     struct cambiosNucleos *cambios;
     struct proceso *siguiente;
 };
