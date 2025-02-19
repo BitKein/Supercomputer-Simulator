@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
     // init supercompu
     struct sistema *sistema = (struct sistema *)malloc(sizeof(struct sistema));
     sistema->tiempoTranscurrido = 0;
-    sistema->cantTotalNucleos = 32;
+    sistema->cantTotalNucleos = CORES_SIMULADOR;
     sistema->cantNucleosLibres = sistema->cantTotalNucleos;
     sistema->procesosEjec = (struct colaProcesos *)malloc(sizeof(struct colaProcesos));
     sistema->procesosEjec->tamanio = 0;
@@ -121,7 +121,12 @@ int main(int argc, char *argv[])
 
     // definir funcion gestion de colas
     void (*gcFunc)(struct colaProcesos *, struct colaEventos *, struct sistema *);
-    gcFunc = &fifo;
+    switch (GESTOR_COLA)
+    {
+    case 1:
+        gcFunc = &fifo;
+        break;
+    }
 
     // generar el array con los eventos
     struct colaEventos *colaEventos = (struct colaEventos *)malloc(sizeof(struct colaEventos));
@@ -140,6 +145,7 @@ int main(int argc, char *argv[])
 
     struct momento *momento = siguienteEvento(colaEventos);
     struct evento *evento;
+
     //  bucle principal, por cada momento de tiempo...
     int i = 0;
     while (momento != NULL)
@@ -183,7 +189,8 @@ int main(int argc, char *argv[])
                 procTerminados[p->pid] = 1;
                 break;
             case 1:
-                p->tiempoParaTerminar = actualizarTiempoParaTerminar(p->tiempoParaTerminar, p->nucleos, (p->nucleos * evento->factor));
+                // p->tiempoParaTerminar = actualizarTiempoParaTerminar(p->tiempoParaTerminar, p->nucleos, p->nucleos * evento->factor);
+                p->tiempoParaTerminar = p->tiempoParaTerminar * p->nucleos / (p->nucleos * evento->factor);
                 p->nucleos = p->nucleos * evento->factor;
                 quitarProceso(sistema->procesosEjec, p);
                 anadirAlPrincipio(colaProcesos, p);
@@ -193,7 +200,8 @@ int main(int argc, char *argv[])
                 // p->cambios->cambios->procesado = 1;
                 break;
             case 2:
-                p->tiempoParaTerminar = actualizarTiempoParaTerminar(p->tiempoParaTerminar, p->nucleos, (p->nucleos * evento->factor));
+                // p->tiempoParaTerminar = actualizarTiempoParaTerminar(p->tiempoParaTerminar, p->nucleos, (p->nucleos / evento->factor));
+                p->tiempoParaTerminar = p->tiempoParaTerminar * p->nucleos / (p->nucleos / evento->factor);
                 p->nucleos = p->nucleos / evento->factor;
                 quitarProceso(sistema->procesosEjec, p);
                 anadirAlPrincipio(colaProcesos, p);
@@ -208,10 +216,13 @@ int main(int argc, char *argv[])
 
             evento = evento->siguiente;
         }
+
+        // utilization(momento->momento, sistema->cantTotalNucleos - sistema->cantNucleosLibres);
+
         // llamar al GC
         gcFunc(colaProcesos, colaEventos, sistema);
 
-        utilization(sistema->cantTotalNucleos - sistema->cantNucleosLibres);
+        utilization(sistema->tiempoTranscurrido, sistema->cantTotalNucleos - sistema->cantNucleosLibres);
 
         momento = siguienteEvento(colaEventos);
         // momento = momento->siguienteMomento;

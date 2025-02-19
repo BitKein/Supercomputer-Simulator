@@ -8,39 +8,39 @@
 int inicEstadisticas()
 {
     // makespan
-    queue_exec_time = (int *)malloc(sizeof(int));
     queue_exec_time = 0;
-    job_exec_time = (int **)malloc(numProcesosCola * sizeof(int *));
+    job_exec_time = (int *)malloc(numProcesosCola * sizeof(int));
     for (int i = 0; i < numProcesosCola; i++)
     {
-        job_exec_time[i] = (int *)malloc(sizeof(int));
         job_exec_time[i] = 0;
     }
 
     // waiting time en cola
-    queue_wait_time = (int *)malloc(sizeof(int));
-    *queue_wait_time = 0;
+    queue_wait_time = 0;
 
     // waiting time de cada job
-    job_wait_time = (int **)malloc(numProcesosCola * sizeof(int *));
+    job_wait_time = (int *)malloc(numProcesosCola * sizeof(int));
     for (int i = 0; i < numProcesosCola; i++)
     {
-        job_wait_time[i] = (int *)malloc(sizeof(int));
         job_wait_time[i] = 0;
     }
 
     // total time
 
-    job_total_time = (int **)malloc(numProcesosCola * sizeof(int *));
+    job_total_time = (int *)malloc(numProcesosCola * sizeof(int));
     for (int i = 0; i < numProcesosCola; i++)
     {
-        job_total_time[i] = (int *)malloc(sizeof(int));
         job_total_time[i] = 0;
     }
 
     // utilization
-    utilization_size = (int *)malloc(sizeof(int));
-    *utilization_size = 0;
+    utilization_size = 0;
+
+    // utilization_moment = (int *)malloc(sizeof(int));
+    // utilization_moment[0] = 0;
+
+    // utilization_cores = (int *)malloc(sizeof(int));
+    // utilization_cores[0] = 0;
 
     return 0;
 }
@@ -88,9 +88,13 @@ int actEstadisticas(struct colaProcesos *cola, int t)
     }
 }
 
-int utilization(int nucleos_en_uso)
+int utilization(int momento, int nucleos_en_uso)
 {
-
+    utilization_size++;
+    utilization_moment = (int *)realloc(utilization_moment, utilization_size * sizeof(int));
+    utilization_moment[utilization_size - 1] = momento;
+    utilization_cores = (int *)realloc(utilization_cores, utilization_size * sizeof(int));
+    utilization_cores[utilization_size - 1] = nucleos_en_uso;
     return 0;
 }
 
@@ -116,9 +120,5 @@ int *waitingTime()
 // total time: Tejec + Wtime, tanto de la cola como de cada proceso
 //  devuelve el Ttime de la cola + una lista de Ttime de cada proceso
 int *totalTime()
-{
-}
-
-int utilization()
 {
 }

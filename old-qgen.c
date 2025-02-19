@@ -4,6 +4,11 @@
 Este programa genera ficheros que contienen colas
 de procesos para que sean procesados por el simulador
 
+
+    estructura de cada linea del fichero:
+    pid,nucleos,tEjec,numCambios,*[momentoCambio,incr,factor]
+
+
 */
 
 #include <stdio.h>
@@ -13,13 +18,13 @@ de procesos para que sean procesados por el simulador
 #include <math.h>
 #include <stdbool.h>
 
-#define MAX_TEST_LINE 500
+#define MAX_TEST_LINE 1
 #define MAX_NUCLEOS 64
 #define MAX_TEJEC 99999
-#define MIN_CAMBIOS 0
-#define MAX_CAMBIOS 0
+#define MIN_CAMBIOS 1
+#define MAX_CAMBIOS 1
 #define MAX_FACTOR_POW 3
-#define MAX_QUEUE_SIZE 100
+#define MAX_QUEUE_SIZE 1
 
 int main()
 {
