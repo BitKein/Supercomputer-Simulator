@@ -16,7 +16,7 @@ int inicEstadisticas()
     }
 
     // waiting time en cola
-    queue_wait_time = 0;
+    // queue_wait_time = 0;
 
     // waiting time de cada job
     job_wait_time = (int *)malloc(numProcesosCola * sizeof(int));
@@ -26,6 +26,7 @@ int inicEstadisticas()
     }
 
     // total time
+    // queue_total_time = 0;
 
     job_total_time = (int *)malloc(numProcesosCola * sizeof(int));
     for (int i = 0; i < numProcesosCola; i++)

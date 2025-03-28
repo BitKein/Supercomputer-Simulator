@@ -235,7 +235,7 @@ int main(int argc, char *argv[])
     printf("La cola se ha procesado en %i dias, %i horas, %i minutos y %i segundos. (%i seg en total)\n", dias, horas, minutos, segundos, sistema->tiempoTranscurrido); */
     printf(" -- EXECUTION STATS -- \n");
     printf("Queue makespan: %d\n", sistema->tiempoTranscurrido);
-    printf("Queue waiting time: %d\n", queue_wait_time);
+    // printf("Queue waiting time: %d\n", queue_wait_time);
     printf("Job waiting time (ordered by PID): ");
     for (int i = 0; i < numProcesosCola; i++)
     {
@@ -249,6 +249,19 @@ int main(int argc, char *argv[])
         printf("%i ", job_total_time[i]);
     }
     printf("\n");
+
+    printf("Utilization moments: ");
+    for (int i = 0; i < utilization_size; i++)
+        printf("%i,", utilization_moment[i]);
+
+    printf("\n");
+
+    printf("Utilization cores: ");
+    for (int i = 0; i < utilization_size; i++)
+        printf("%i,", utilization_cores[i]);
+
+    printf("\n");
+    queue_exec_time = sistema->tiempoTranscurrido;
     // utilization
 
     fclose(archivo);
