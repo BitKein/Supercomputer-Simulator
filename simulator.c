@@ -120,11 +120,16 @@ int main(int argc, char *argv[])
     anadirAlFinal(sistema->procesosEjec, p0);
 
     // definir funcion gestion de colas
+
     void (*gcFunc)(struct colaProcesos *, struct colaEventos *, struct sistema *);
+
     switch (GESTOR_COLA)
     {
     case 1:
         gcFunc = &fifo;
+        break;
+    case 2:
+        gcFunc = &bf;
         break;
     }
 
