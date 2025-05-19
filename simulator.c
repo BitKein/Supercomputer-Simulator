@@ -197,12 +197,12 @@ int main(int argc, char *argv[])
             return 2; */
 
         j = 0;
-        for (int i = 0; i < numProcesosCola; i++)
+        for (int f = 0; f < numProcesosCola; f++)
         // for (int i = 0; i < cola->tamanio; i++)
         {
-            if (!procTerminados[i])
+            if (!procTerminados[f])
             {
-                job_total_time[i] += momento->momento;
+                job_total_time[f] += momento->momento;
             }
 
             // if (i == pidProcesosEjec[j])
@@ -210,9 +210,9 @@ int main(int argc, char *argv[])
             bool enEjec = false;
             for (int k = 0; k < sistema->procesosEjec->tamanio; k++)
             {
-                if (i == pidProcesosEjec[k])
+                if (f == pidProcesosEjec[k])
                 {
-                    job_exec_time[i] += momento->momento;
+                    job_exec_time[f] += momento->momento;
                     enEjec = true;
                     break;
                 }
@@ -224,9 +224,9 @@ int main(int argc, char *argv[])
                 j++;
             } */
 
-            if (!enEjec && !procTerminados[i])
+            if (!enEjec && !procTerminados[f])
             {
-                job_wait_time[i] += momento->momento;
+                job_wait_time[f] += momento->momento;
             }
         }
         // final actualizar estadisticas
@@ -250,8 +250,19 @@ int main(int argc, char *argv[])
                 p->tiempoParaTerminar = p->tiempoParaTerminar * p->nucleos / (p->nucleos * evento->factor);
                 p->nucleos = p->nucleos * evento->factor;
                 quitarProceso(sistema->procesosEjec, p);
-                anadirAlPrincipio(colaProcesos, p);
-                // anadirAlFinal(colaProcesos, p);
+                switch (GESTOR_COLA)
+                {
+                case 1:
+                    // fifo
+                    anadirAlFinal(colaProcesos, p);
+                    break;
+                case 2:
+                    // bf
+                    anadirAlPrincipio(colaProcesos, p);
+                    break;
+                }
+                // anadirAlPrincipio(colaProcesos, p);
+                //  anadirAlFinal(colaProcesos, p);
                 quitarEventosProceso(colaEventos, p->pid);
                 marcarSigCambio(p);
                 // p->cambios->cambios->procesado = 1;
@@ -261,8 +272,19 @@ int main(int argc, char *argv[])
                 p->tiempoParaTerminar = p->tiempoParaTerminar * p->nucleos / (p->nucleos / evento->factor);
                 p->nucleos = p->nucleos / evento->factor;
                 quitarProceso(sistema->procesosEjec, p);
-                anadirAlPrincipio(colaProcesos, p);
-                // anadirAlFinal(colaProcesos, p);
+                switch (GESTOR_COLA)
+                {
+                case 1:
+                    // fifo
+                    anadirAlFinal(colaProcesos, p);
+                    break;
+                case 2:
+                    // bf
+                    anadirAlPrincipio(colaProcesos, p);
+                    break;
+                }
+                // anadirAlPrincipio(colaProcesos, p);
+                //  anadirAlFinal(colaProcesos, p);
                 quitarEventosProceso(colaEventos, p->pid);
                 marcarSigCambio(p);
                 // p->cambios->cambios->procesado = 1;

@@ -12,7 +12,7 @@
             "program": "${workspaceFolder}/simulator.exe",
             //"args": [],
             //"args": ["${workspaceFolder}/tests/test2.txt"],
-            "args": ["${workspaceFolder}/tests/prueba1.txt"],
+            "args": ["${workspaceFolder}/tests/prueba5.txt"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
