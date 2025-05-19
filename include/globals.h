@@ -3,8 +3,9 @@
 // Para permitir o no que los trabajos cambien de numero de cores
 #define MALLEABILITY_ON 1
 
-// #define CORES_SIMULADOR 32
-#define CORES_SIMULADOR 165884
+/* #define CORES_SIMULADOR 32 */
+// #define CORES_SIMULADOR 165884
+#define CORES_SIMULADOR 8
 
 // Para seleccionar el gestor de la cola de trabajos a utilizar
 // 1: fifo

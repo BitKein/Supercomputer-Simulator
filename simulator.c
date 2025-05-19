@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include "include/structs.h"
 #include "include/func.h"
 #include "include/stats.h"
@@ -17,7 +18,7 @@ int main(int argc, char *argv[])
 
     // init supercompu
     struct sistema *sistema = (struct sistema *)malloc(sizeof(struct sistema));
-    sistema->tiempoTranscurrido = 0;
+    sistema->tiempoTranscurrido = 0.0;
     sistema->cantTotalNucleos = CORES_SIMULADOR;
     sistema->cantNucleosLibres = sistema->cantTotalNucleos;
     sistema->procesosEjec = (struct colaProcesos *)malloc(sizeof(struct colaProcesos));
@@ -52,8 +53,8 @@ int main(int argc, char *argv[])
         token = strtok(NULL, delimiters);
         proceso->nucleos = atoi(token);
         token = strtok(NULL, delimiters);
-        proceso->tiempoEjec = atoi(token);
-        proceso->tiempoDesdeInicioEjec = 0;
+        proceso->tiempoEjec = atof(token);
+        proceso->tiempoDesdeInicioEjec = 0.0;
         proceso->tiempoParaTerminar = proceso->tiempoEjec;
         proceso->cambios = (struct cambiosNucleos *)malloc(sizeof(struct cambiosNucleos));
         token = strtok(NULL, delimiters);
@@ -75,7 +76,7 @@ int main(int argc, char *argv[])
             while (p < proceso->cambios->tamanio)
             {
                 token = strtok(NULL, delimiters);
-                aux->momentoCambio = atoi(token);
+                aux->momentoCambio = atof(token);
                 token = strtok(NULL, delimiters);
                 aux->incrementar = atoi(token);
                 token = strtok(NULL, delimiters);
@@ -137,10 +138,10 @@ int main(int argc, char *argv[])
     struct colaEventos *colaEventos = (struct colaEventos *)malloc(sizeof(struct colaEventos));
     colaEventos->tamanio = 1;
     colaEventos->eventos = (struct momento *)malloc(sizeof(struct momento));
-    colaEventos->eventos->momento = 0;
+    colaEventos->eventos->momento = 0.0;
     // colaEventos->eventos->siguienteMomento = colaEventos->eventos;
     colaEventos->eventos->siguienteMomento = NULL;
-    colaEventos->eventos->tiempoDesdeEventoAnterior = 0;
+    colaEventos->eventos->tiempoDesdeEventoAnterior = 0.0;
     colaEventos->eventos->numeroEventos = 1;
     colaEventos->eventos->evento = (struct evento *)malloc(sizeof(struct evento));
     colaEventos->eventos->evento->tipo = 0;
@@ -177,7 +178,58 @@ int main(int argc, char *argv[])
         }
 
         // actualizar stats
-        actEstadisticas(sistema->procesosEjec, momento->momento);
+        // actEstadisticas(sistema->procesosEjec, momento->momento);
+
+        // inicio actualizar estadisticas
+        /* if (sistema->procesosEjec->tamanio == 0)
+            return 1; */
+
+        int *pidProcesosEjec = (int *)malloc(sistema->procesosEjec->tamanio * sizeof(int));
+        int j = 0;
+        struct proceso *pr = sistema->procesosEjec->procesos;
+        while (pr != NULL)
+        {
+            pidProcesosEjec[j] = pr->pid;
+            j++;
+            pr = pr->siguiente;
+        }
+        /* if (j != sistema->procesosEjec->tamanio)
+            return 2; */
+
+        j = 0;
+        for (int i = 0; i < numProcesosCola; i++)
+        // for (int i = 0; i < cola->tamanio; i++)
+        {
+            if (!procTerminados[i])
+            {
+                job_total_time[i] += momento->momento;
+            }
+
+            // if (i == pidProcesosEjec[j])
+
+            bool enEjec = false;
+            for (int k = 0; k < sistema->procesosEjec->tamanio; k++)
+            {
+                if (i == pidProcesosEjec[k])
+                {
+                    job_exec_time[i] += momento->momento;
+                    enEjec = true;
+                    break;
+                }
+            }
+
+            /* if (i == pidProcesosEjec[j])
+            {
+                job_exec_time[i] += t;
+                j++;
+            } */
+
+            if (!enEjec && !procTerminados[i])
+            {
+                job_wait_time[i] += momento->momento;
+            }
+        }
+        // final actualizar estadisticas
 
         // por cada evento...
         while (evento != NULL)
@@ -227,7 +279,15 @@ int main(int argc, char *argv[])
         // llamar al GC
         gcFunc(colaProcesos, colaEventos, sistema);
 
-        utilization(sistema->tiempoTranscurrido, sistema->cantTotalNucleos - sistema->cantNucleosLibres);
+        // utilization(sistema->tiempoTranscurrido, sistema->cantTotalNucleos - sistema->cantNucleosLibres);
+        // inicio utilizatio
+        utilization_size++;
+        utilization_moment = (int *)realloc(utilization_moment, utilization_size * sizeof(int));
+        utilization_moment[utilization_size - 1] = sistema->tiempoTranscurrido;
+        utilization_cores = (int *)realloc(utilization_cores, utilization_size * sizeof(int));
+        utilization_cores[utilization_size - 1] = sistema->cantTotalNucleos - sistema->cantNucleosLibres;
+
+        // final utilization
 
         momento = siguienteEvento(colaEventos);
         // momento = momento->siguienteMomento;
@@ -239,25 +299,25 @@ int main(int argc, char *argv[])
     int segundos = sistema->tiempoTranscurrido - dias * 60 * 60 * 24 - horas * 60 * 60 - minutos * 60;
     printf("La cola se ha procesado en %i dias, %i horas, %i minutos y %i segundos. (%i seg en total)\n", dias, horas, minutos, segundos, sistema->tiempoTranscurrido); */
     printf(" -- EXECUTION STATS -- \n");
-    printf("Queue makespan: %d\n", sistema->tiempoTranscurrido);
+    printf("Queue makespan: %f\n", sistema->tiempoTranscurrido);
     // printf("Queue waiting time: %d\n", queue_wait_time);
     printf("Job waiting time (ordered by PID): ");
     for (int i = 0; i < numProcesosCola; i++)
     {
-        printf("%i ", job_wait_time[i]);
+        printf("%f ", job_wait_time[i]);
     }
     printf("\n");
     // printf("Queue total time: %d\n", queue_total_time);
     printf("Job total time (ordered by PID): ");
     for (int i = 0; i < numProcesosCola; i++)
     {
-        printf("%i ", job_total_time[i]);
+        printf("%f ", job_total_time[i]);
     }
     printf("\n");
 
     printf("Utilization moments: ");
     for (int i = 0; i < utilization_size; i++)
-        printf("%i,", utilization_moment[i]);
+        printf("%f,", utilization_moment[i]);
 
     printf("\n");
 

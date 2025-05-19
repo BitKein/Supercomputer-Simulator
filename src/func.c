@@ -1,8 +1,89 @@
-#include "../include/structs.h"
+// #include "../include/structs.h"
 #include <stdlib.h>
 #include <stdio.h>
-#include "../include/func.h"
+// #include "../include/func.h"
 #include <stdbool.h>
+
+struct objetoCambio
+{
+    // 1: el cambio YA se ha hecho
+    // 0: No se ha hecho el cambio
+    int procesado;
+    float momentoCambio;
+    // 1: Multiplicar el número de nucleos actual por el factor
+    // 0: Dividir el número de nucleos actual por el factor
+    int incrementar;
+    int factor;
+    struct objetoCambio *siguiente;
+};
+
+struct cambiosNucleos
+{
+    int tamanio;
+    struct objetoCambio *cambios;
+};
+
+struct proceso
+{
+    int pid;
+    int nucleos;
+    float tiempoEjec;
+    float tiempoDesdeInicioEjec;
+    float tiempoParaTerminar;
+    struct cambiosNucleos *cambios;
+    struct proceso *siguiente;
+};
+
+struct colaProcesos
+{
+    int tamanio;
+    struct proceso *procesos;
+};
+
+struct evento
+{
+    struct proceso *proceso;
+    // 0: no hay cambio, un proceso ha terminado
+    // 1: aumenta el número de núcleos
+    // 2: disminuye el número de núcleos
+    int tipo;
+    // si tipo es 0, factor es 1
+    int factor;
+    struct evento *siguiente;
+};
+
+struct momento
+{
+    float momento;
+    float tiempoDesdeEventoAnterior;
+    int numeroEventos;
+    // struct evento *eventos;
+    struct evento *evento;
+    struct momento *siguienteMomento;
+};
+
+struct colaEventos
+{
+    int tamanio;
+    struct momento *eventos;
+};
+
+struct sistema
+{
+    // segundos transcurridos desde el principio
+    float tiempoTranscurrido;
+    int cantTotalNucleos;
+    int cantNucleosLibres;
+    struct colaProcesos *procesosEjec;
+};
+
+void fifo(struct colaProcesos *colaProcesos, struct colaEventos *colaEventos, struct sistema *sistema);
+void bf(struct colaProcesos *colaProcesos, struct colaEventos *colaEventos, struct sistema *sistema, int k);
+void actualizarColaEventos(struct colaEventos *colaEventos, struct momento *e);
+void anadirAlFinal(struct colaProcesos *cola, struct proceso *p);
+void anadirAlPrincipio(struct colaProcesos *cola, struct proceso *p);
+int quitarProceso(struct colaProcesos *cola, struct proceso *p);
+struct momento *siguienteEvento(struct colaEventos *colaEventos);
 
 // funciones de Gestión de Colas
 

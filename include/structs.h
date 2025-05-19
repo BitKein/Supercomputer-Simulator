@@ -4,7 +4,7 @@ struct objetoCambio
     // 1: el cambio YA se ha hecho
     // 0: No se ha hecho el cambio
     int procesado;
-    int momentoCambio;
+    float momentoCambio;
     // 1: Multiplicar el número de nucleos actual por el factor
     // 0: Dividir el número de nucleos actual por el factor
     int incrementar;
@@ -22,8 +22,8 @@ struct proceso
 {
     int pid;
     int nucleos;
-    int tiempoEjec;
-    int tiempoDesdeInicioEjec;
+    float tiempoEjec;
+    float tiempoDesdeInicioEjec;
     float tiempoParaTerminar;
     struct cambiosNucleos *cambios;
     struct proceso *siguiente;
@@ -49,8 +49,8 @@ struct evento
 
 struct momento
 {
-    int momento;
-    int tiempoDesdeEventoAnterior;
+    float momento;
+    float tiempoDesdeEventoAnterior;
     int numeroEventos;
     // struct evento *eventos;
     struct evento *evento;
@@ -66,7 +66,7 @@ struct colaEventos
 struct sistema
 {
     // segundos transcurridos desde el principio
-    int tiempoTranscurrido;
+    float tiempoTranscurrido;
     int cantTotalNucleos;
     int cantNucleosLibres;
     struct colaProcesos *procesosEjec;

@@ -1,1 +1,52 @@
-0,32,44560,2,50,0,2,100,1,2
+int actEstadisticas(struct colaProcesos *cola, float t)
+{
+
+    if (cola->tamanio == 0)
+        return 1;
+
+    int *pidProcesosEjec = (int *)malloc(cola->tamanio * sizeof(int));
+    int j = 0;
+    struct proceso *pr = cola->procesos;
+    while (pr != NULL)
+    {
+        pidProcesosEjec[j] = pr->pid;
+        j++;
+        pr = pr->siguiente;
+    }
+    if (j != cola->tamanio)
+        return 2;
+
+    j = 0;
+    for (int i = 0; i < numProcesosCola; i++)
+    // for (int i = 0; i < cola->tamanio; i++)
+    {
+        if (!procTerminados[i])
+        {
+            job_total_time[i] += t;
+        }
+
+        // if (i == pidProcesosEjec[j])
+
+        bool enEjec = false;
+        for (int k = 0; k < cola->tamanio; k++)
+        {
+            if (i == pidProcesosEjec[k])
+            {
+                job_exec_time[i] += t;
+                enEjec = true;
+                break;
+            }
+        }
+
+        /* if (i == pidProcesosEjec[j])
+        {
+            job_exec_time[i] += t;
+            j++;
+        } */
+
+        if (!enEjec && !procTerminados[i])
+        {
+            job_wait_time[i] += t;
+        }
+    }
+}

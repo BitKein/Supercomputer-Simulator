@@ -3,35 +3,36 @@
 #include "../include/globals.h"
 #include "../include/structs.h"
 #include <stddef.h>
+#include <stdbool.h>
 
 // para inicializar estructuras de datos relacionadas con las estadísticas
 int inicEstadisticas()
 {
     // makespan
-    queue_exec_time = 0;
-    job_exec_time = (int *)malloc(numProcesosCola * sizeof(int));
+    queue_exec_time = 0.0;
+    job_exec_time = (float *)malloc(numProcesosCola * sizeof(float));
     for (int i = 0; i < numProcesosCola; i++)
     {
-        job_exec_time[i] = 0;
+        job_exec_time[i] = 0.0;
     }
 
     // waiting time en cola
     // queue_wait_time = 0;
 
     // waiting time de cada job
-    job_wait_time = (int *)malloc(numProcesosCola * sizeof(int));
+    job_wait_time = (float *)malloc(numProcesosCola * sizeof(float));
     for (int i = 0; i < numProcesosCola; i++)
     {
-        job_wait_time[i] = 0;
+        job_wait_time[i] = 0.0;
     }
 
     // total time
     // queue_total_time = 0;
 
-    job_total_time = (int *)malloc(numProcesosCola * sizeof(int));
+    job_total_time = (float *)malloc(numProcesosCola * sizeof(float));
     for (int i = 0; i < numProcesosCola; i++)
     {
-        job_total_time[i] = 0;
+        job_total_time[i] = 0.0;
     }
 
     // utilization
@@ -47,7 +48,7 @@ int inicEstadisticas()
 }
 
 // para actualizar o recopilar las estadísticas
-int actEstadisticas(struct colaProcesos *cola, int t)
+int actEstadisticas(struct colaProcesos *cola, float t)
 {
 
     if (cola->tamanio == 0)
@@ -67,29 +68,40 @@ int actEstadisticas(struct colaProcesos *cola, int t)
 
     j = 0;
     for (int i = 0; i < numProcesosCola; i++)
+    // for (int i = 0; i < cola->tamanio; i++)
     {
         if (!procTerminados[i])
         {
             job_total_time[i] += t;
         }
 
-        if (i == pidProcesosEjec[j])
+        // if (i == pidProcesosEjec[j])
+
+        bool enEjec = false;
+        for (int k = 0; k < cola->tamanio; k++)
+        {
+            if (i == pidProcesosEjec[k])
+            {
+                job_exec_time[i] += t;
+                enEjec = true;
+                break;
+            }
+        }
+
+        /* if (i == pidProcesosEjec[j])
         {
             job_exec_time[i] += t;
             j++;
-        }
+        } */
 
-        else
+        if (!enEjec && !procTerminados[i])
         {
-            if (!procTerminados[i])
-            {
-                job_wait_time[i] += t;
-            }
+            job_wait_time[i] += t;
         }
     }
 }
 
-int utilization(int momento, int nucleos_en_uso)
+int utilization(float momento, int nucleos_en_uso)
 {
     utilization_size++;
     utilization_moment = (int *)realloc(utilization_moment, utilization_size * sizeof(int));
